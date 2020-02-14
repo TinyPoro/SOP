@@ -71,7 +71,7 @@ return [
             'visibility' => 'public',
         ],
 
-        'google' => [
+        'google_drive' => [
             'driver' => 'google',
             'clientId' => env('GOOGLE_DRIVE_CLIENT_ID'),
             'clientSecret' => env('GOOGLE_DRIVE_CLIENT_SECRET'),
