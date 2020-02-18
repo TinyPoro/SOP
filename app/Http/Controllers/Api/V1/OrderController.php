@@ -57,9 +57,9 @@ class OrderController extends Controller
                 $itemName = Arr::get($lineItem, 'title', '');
                 $numberOfItem = Arr::get($lineItem, 'quantity', 0);
                 $title = Arr::get($lineItem, 'variant_title', '');
-                $result = $this->shopifyHelpers->getItemTypeAndItemSizeFromTitle($title);
-                $itemType = Arr::get($result, 'type', '');
-                $itemSize = Arr::get($result, 'size', '');
+                $data = $this->shopifyHelpers->getItemTypeAndItemSizeFromTitle($title);
+                $itemType = Arr::get($data, 'type', '');
+                $itemSize = Arr::get($data, 'size', '');
 
                 $properties = Arr::get($lineItem, 'properties', []);
 

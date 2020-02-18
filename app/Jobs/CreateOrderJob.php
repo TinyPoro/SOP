@@ -79,7 +79,8 @@ class CreateOrderJob implements ShouldQueue
             $dayFolderName = $order->order_date->format("M d Y");
             $dayFolder = $this->createGoogleDriveDir($monthFolder['path']."/", $dayFolderName);
 
-            $customerFolder = $this->createGoogleDriveDir($dayFolder['path']."/", $order->name);
+            $customerFolderName = $order->customer_name;
+            $customerFolder = $this->createGoogleDriveDir($dayFolder['path']."/", $customerFolderName);
 
             $imageDisk = "shopify";
 
@@ -155,13 +156,10 @@ class CreateOrderJob implements ShouldQueue
             $boardId = env("TRELLO_BOARD_ID");
 
             $customerFolderUrl = $this->getGoogleDriveUrl($customerFolder['path']);
-            $cardName = $order->name;
+            $cardName = $order->customer_name;
             $cardDesc = $hasValidImage ?
-                "- Link google drive: $customerFolderUrl
-                 - Note của khách hàng: $finalNote" :
-                "- Link google drive: $customerFolderUrl
-                 - Note của khách hàng: $finalNote
-                 - NIR";
+                "- Link google drive: $customerFolderUrl\n- Note của khách hàng: $finalNote" :
+                "- Link google drive: $customerFolderUrl\n- Note của khách hàng: $finalNote\n- NIR";
 
             $listName = $dayFolderName;
             $list = $this->createTrelloBoardList($boardId, $listName);
@@ -264,6 +262,13 @@ class CreateOrderJob implements ShouldQueue
     private function createTrelloListCard($listId, $cardName, $cardDesc, $duplicate = false) {
         if($card = $this->checkTrelloListCardExist($listId, $cardName)) {
             if(!$duplicate) {
+                $oldDesc = $card->desc;
+                $newDesc = "$oldDesc\n****\n$cardDesc";
+
+                $card = $this->trelloClient->api('cards')->update($card->id, $cardName, [
+                    'desc' => $newDesc
+                ]);
+
                 return $card;
             }
         }
