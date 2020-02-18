@@ -17,7 +17,7 @@ class CreateShopifyImagesTable extends Migration
             $table->bigIncrements('id');
             $table->string('disk');
             $table->string('path');
-            $table->unsignedBigInteger('order_id')->nullable();
+            $table->unsignedBigInteger('item_id')->nullable();
             $table->timestamps();
         });
     }

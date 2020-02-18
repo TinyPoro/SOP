@@ -13,31 +13,43 @@ use App\Crawler\PuPHPeteerCrawler;
 
 class ShopifyHelpers
 {
-    /**
-     * PuPHPeteerCrawler
-     *
-     * @var PuPHPeteerCrawler
-     */
-    private $puPHPeteerCrawler;
-
-    /**
-     * Create a new command instance.
-     *
-     * @param PuPHPeteerCrawler $puPHPeteerCrawler
-     * @return void
-     */
-    public function __construct(PuPHPeteerCrawler $puPHPeteerCrawler)
-    {
-        $this->puPHPeteerCrawler = $puPHPeteerCrawler;
-    }
-
     public function getImageSrcFromCdnUrl($url)
     {
-        $page = $this->puPHPeteerCrawler->createNewPage();
+        $puPHPeteerCrawler = new PuPHPeteerCrawler();
+        $page = $puPHPeteerCrawler->createNewPage();
         $page->goto($url, ['waitUntil' => 'load']);
 
-        $imageSrc = $this->puPHPeteerCrawler->getElementAttribute($page, "#previewImage", "src");
+        $imageSrc = $puPHPeteerCrawler->getElementAttribute($page, "#previewImage", "src");
 
         return $imageSrc;
+    }
+
+    public function getItemTypeAndItemSizeFromTitle($title) {
+        $result = [
+            'type' => '',
+            'size' => ''
+        ];
+
+        if(preg_match('/Digital Art/ui', $title)){
+            $result['type'] = "Digital art";
+        }
+
+        if(preg_match('/Canvas/ui', $title)){
+            $result['type'] = "canvas";
+
+            if(preg_match("/\d+ x \d+/", $title,$matches)){
+                $result['size'] = $matches[0];
+            }
+        }
+
+        if(preg_match('/Poster/ui', $title)){
+            $result['type'] = "poster";
+
+            if(preg_match("/\d+ x \d+/", $title,$matches)){
+                $result['size'] = $matches[0];
+            }
+        }
+
+        return $result;
     }
 }

@@ -13,4 +13,5 @@ Route::group([
 ], function () { // custom admin routes
     Route::crud('order', 'OrderCrudController');
     Route::crud('shopifyimage', 'ShopifyImageCrudController');
+    Route::crud('item', 'ItemCrudController');
 }); // this should be the absolute last line of this file

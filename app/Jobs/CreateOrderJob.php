@@ -20,21 +20,41 @@ class CreateOrderJob implements ShouldQueue
 
     private $trelloClient;
 
-    private $name;
-    private $product;
-    private $type;
-    private $size;
+    private $orderNumber;
+    private $date;
+    private $customerName;
+    private $customerEmail;
+    private $linkToOrder;
+    private $itemName;
+    private $numberOfItem;
+    private $itemType;
+    private $itemSize;
     private $images;
-    private $orderDate;
+    private $notes;
 
-    public function __construct($name, $product, $type, $size, $images, $orderDate)
+    public function __construct( $orderNumber,
+                                 $date,
+                                 $customerName,
+                                 $customerEmail,
+                                 $linkToOrder,
+                                 $itemName,
+                                 $numberOfItem,
+                                 $itemType,
+                                 $itemSize,
+                                 $images,
+                                 $notes)
     {
-        $this->name = $name;
-        $this->product = $product;
-        $this->type = $type;
-        $this->size = $size;
+        $this->orderNumber = $orderNumber;
+        $this->date = $date;
+        $this->customerName = $customerName;
+        $this->customerEmail = $customerEmail;
+        $this->linkToOrder = $linkToOrder;
+        $this->itemName = $itemName;
+        $this->numberOfItem = $numberOfItem;
+        $this->itemType = $itemType;
+        $this->itemSize = $itemSize;
         $this->images = $images;
-        $this->orderDate = $orderDate;
+        $this->notes = $notes;
 
         $trelloClient = new Client();
         $trelloClient->authenticate(env('TRELLO_KEY'), env('TRELLO_SECRET'), Client::AUTH_URL_CLIENT_ID);
