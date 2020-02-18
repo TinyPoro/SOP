@@ -17,12 +17,12 @@ class UsersTableSeeder extends Seeder
 
     private function createDataProduction ()
     {
-        $user = \App\User::create([
+        $user = \App\Models\BackpackUser::create([
             'name' => 'Trần Minh',
             'email' => 'minhtran9691@gmail.com',
             'password' => Hash::make('123456'),
         ]);
 
-        $user->syncRoles('Admin');
+        $user->syncRoles(['Admin']);
     }
 }
