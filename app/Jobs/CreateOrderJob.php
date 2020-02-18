@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Helpers\ShopifyHelpers;
+use App\Models\Item;
 use App\Models\Order;
 use App\Models\ShopifyImage;
 use Carbon\Carbon;
@@ -10,7 +12,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Trello\Client;
 
@@ -19,47 +23,34 @@ class CreateOrderJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private $trelloClient;
+    private $shopifyHelpers;
 
     private $orderNumber;
     private $date;
     private $customerName;
     private $customerEmail;
     private $linkToOrder;
-    private $itemName;
-    private $numberOfItem;
-    private $itemType;
-    private $itemSize;
-    private $images;
-    private $notes;
+    private $items;
 
     public function __construct( $orderNumber,
                                  $date,
                                  $customerName,
                                  $customerEmail,
                                  $linkToOrder,
-                                 $itemName,
-                                 $numberOfItem,
-                                 $itemType,
-                                 $itemSize,
-                                 $images,
-                                 $notes)
+                                 $items)
     {
         $this->orderNumber = $orderNumber;
         $this->date = $date;
         $this->customerName = $customerName;
         $this->customerEmail = $customerEmail;
         $this->linkToOrder = $linkToOrder;
-        $this->itemName = $itemName;
-        $this->numberOfItem = $numberOfItem;
-        $this->itemType = $itemType;
-        $this->itemSize = $itemSize;
-        $this->images = $images;
-        $this->notes = $notes;
+        $this->items = $items;
 
         $trelloClient = new Client();
         $trelloClient->authenticate(env('TRELLO_KEY'), env('TRELLO_SECRET'), Client::AUTH_URL_CLIENT_ID);
 
         $this->trelloClient = $trelloClient;
+        $this->shopifyHelpers = new ShopifyHelpers();
     }
 
     /**
@@ -72,42 +63,92 @@ class CreateOrderJob implements ShouldQueue
         try{
             \DB::beginTransaction();
 
+            //tạo đơn hàng
             $order = Order::create([
-                'name' => $this->get('name'),
-                'product' => $this->get('product'),
-                'type' => $this->get('type'),
-                'size' => $this->get('size'),
-                'order_date' => Carbon::createFromFormat("d-m-Y", $this->get('orderDate')),
+                'order_number' => $this->get('orderNumber'),
+                'customer_name' => $this->get('customerName'),
+                'customer_email' => $this->get('customerEmail'),
+                'link_to_order' => $this->get('linkToOrder'),
+                'order_date' => $this->get('date'),
             ]);
 
-            // đồng bộ google drive
+            // đồng bộ google drive (đến tầng khách hàng)
+            $monthFolderName = $order->order_date->format("M Y");
+            $monthFolder = $this->createGoogleDriveDir("/", $monthFolderName);
+
             $dayFolderName = $order->order_date->format("M d Y");
-            $dayFolder = $this->createGoogleDriveDir("/", $dayFolderName);
+            $dayFolder = $this->createGoogleDriveDir($monthFolder['path']."/", $dayFolderName);
 
             $customerFolder = $this->createGoogleDriveDir($dayFolder['path']."/", $order->name);
 
-            $productFolderName ="$order->product - $order->size";
-            $productFolder = $this->createGoogleDriveDir($customerFolder['path']."/", $productFolderName);
+            $imageDisk = "shopify";
 
+            $hasValidImage = false;
 
-            // xử lý images
-            $disk = "shopify";
+            //tạo item
+            $items = $this->get('items');
+            $finalNote = "";
 
-            foreach ($this->get('images') as $image) {
-                $path =  $order->id."/".uniqid();
+            foreach ($items as $item) {
+                $itemName = Arr::get($item, 'itemName', '');
+                $numberOfItem = Arr::get($item, 'numberOfItem', '');
+                $itemType = Arr::get($item, 'itemType', '');
+                $itemSize = Arr::get($item, 'itemSize', '');
+                $images = Arr::get($item, 'images', '');
+                $notes = Arr::get($item, 'notes', '');
 
-                Storage::disk($disk)->put($path, file_get_contents($image));
-
-                ShopifyImage::create([
-                    'disk' => $disk,
-                    'path' => $path,
-                    'order_id' => $order->id
+                $item = Item::create([
+                    'item_name' => $itemName,
+                    'number_of_item' => $numberOfItem,
+                    'item_type' => $itemType,
+                    'item_size' => $itemSize,
+                    'notes' => implode(", ", $notes),
+                    'order_id' => $order->id,
                 ]);
 
-                $filePath = Storage::disk($disk)->path($path);
-                $fileName = basename($filePath);
+                $finalNote .= $item->notes . ", ";
 
-                $this->uploadGoogleDriveFile($productFolder['path']."/", $fileName, $filePath);
+
+                $productFolderName = $this->shopifyHelpers->getGoogleDriveProductName($item->item_name, $item->item_type, $item->item_size);
+                $productFolder = $this->createGoogleDriveDir($customerFolder['path']."/", $productFolderName);
+
+
+                // xử lý images
+                foreach ($images as $image) {
+                    $path =  $order->id."/".$item->id."/".uniqid();
+
+                    Storage::disk($imageDisk)->put($path, file_get_contents($image));
+
+                    ShopifyImage::create([
+                        'disk' => $imageDisk,
+                        'path' => $path,
+                        'order_id' => $order->id
+                    ]);
+
+                    $filePath = Storage::disk($imageDisk)->path($path);
+                    $fileName = basename($filePath);
+
+                    $this->uploadGoogleDriveFile($productFolder['path']."/", $fileName, $filePath);
+
+                    if($this->shopifyHelpers->checkValidShopifyImage($filePath)) {
+                        $hasValidImage = true;
+                    }
+                }
+            }
+
+            if(!$hasValidImage) {
+                $to_name = $order->customer_name;
+                $to_email = $order->customer_email;
+
+                $data = [
+                    "name" => $to_name,
+                    "body" => "Ảnh mô tả sản phẩm cho đơn hàng $order->link_to_order của bạn không đạt chất lượng. Bạn vui lòng gửi lại ảnh bằng cách phản hồi email này!"
+                ];
+                Mail::send('emails.mail', $data, function($message) use ($to_name, $to_email) {
+                    $message->to($to_email, $to_name)
+                        ->subject("<Noble Pawtrait> xin cung cấp lại ảnh");
+                    $message->from(env('MAIL_USERNAME'),'Noble Pawtrait');
+                });
             }
 
             //đồng bộ trello
@@ -115,7 +156,12 @@ class CreateOrderJob implements ShouldQueue
 
             $customerFolderUrl = $this->getGoogleDriveUrl($customerFolder['path']);
             $cardName = $order->name;
-            $cardDesc = "Link google drive: $customerFolderUrl";
+            $cardDesc = $hasValidImage ?
+                "- Link google drive: $customerFolderUrl
+                 - Note của khách hàng: $finalNote" :
+                "- Link google drive: $customerFolderUrl
+                 - Note của khách hàng: $finalNote
+                 - NIR";
 
             $listName = $dayFolderName;
             $list = $this->createTrelloBoardList($boardId, $listName);

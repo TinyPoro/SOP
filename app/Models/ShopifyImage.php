@@ -22,7 +22,7 @@ class ShopifyImage extends Model
      protected $fillable = [
          'disk',
          'path',
-         'order_id',
+         'item_id',
      ];
     // protected $hidden = [];
     // protected $dates = [];
@@ -39,9 +39,9 @@ class ShopifyImage extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function order()
+    public function item()
     {
-        return $this->belongsTo('App\Models\Order');
+        return $this->belongsTo('App\Models\Item');
     }
 
     /*

@@ -24,7 +24,8 @@ class ShopifyHelpers
         return $imageSrc;
     }
 
-    public function getItemTypeAndItemSizeFromTitle($title) {
+    public function getItemTypeAndItemSizeFromTitle($title)
+    {
         $result = [
             'type' => '',
             'size' => ''
@@ -35,7 +36,7 @@ class ShopifyHelpers
         }
 
         if(preg_match('/Canvas/ui', $title)){
-            $result['type'] = "canvas";
+            $result['type'] = "Canvas";
 
             if(preg_match("/\d+ x \d+/", $title,$matches)){
                 $result['size'] = $matches[0];
@@ -43,7 +44,7 @@ class ShopifyHelpers
         }
 
         if(preg_match('/Poster/ui', $title)){
-            $result['type'] = "poster";
+            $result['type'] = "Poster";
 
             if(preg_match("/\d+ x \d+/", $title,$matches)){
                 $result['size'] = $matches[0];
@@ -51,5 +52,38 @@ class ShopifyHelpers
         }
 
         return $result;
+    }
+
+    public function getGoogleDriveProductName($itemName, $itemType, $itemSize)
+    {
+        if($itemType === "Digital art") {
+            return $itemName;
+        } else if($itemType === "Canvas" or $itemType === "Poster") {
+            return $this->getGoogleDriveSize($itemSize) . " " . $itemType . " " . $itemName;
+        } else {
+            return null;
+        }
+    }
+
+    private function getGoogleDriveSize($itemSize) {
+        switch ($itemSize) {
+            case "8 x 10":
+                return "2400 x 3000";
+                break;
+            case "12 x 18":
+                return "3600 x 5400";
+                break;
+            case "16 x 24":
+                return "4800 x 7200";
+                break;
+            default:
+                return "";
+        }
+    }
+
+    public function checkValidShopifyImage($filePath) {
+        if(filesize($filePath) < 10) return false;
+
+        return true;
     }
 }

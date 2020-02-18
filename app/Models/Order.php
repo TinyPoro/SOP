@@ -20,10 +20,10 @@ class Order extends Model
     // public $timestamps = false;
     protected $guarded = ['id'];
      protected $fillable = [
-         'name',
-         'product',
-         'type',
-         'size',
+         'order_number',
+         'customer_name',
+         'customer_email',
+         'link_to_order',
          'order_date',
      ];
     // protected $hidden = [];
@@ -41,9 +41,9 @@ class Order extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function shopify_images()
+    public function items()
     {
-        return $this->hasMany('App\Models\ShopifyImage');
+        return $this->hasMany('App\Models\Item');
     }
 
     /*

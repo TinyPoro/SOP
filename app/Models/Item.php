@@ -19,7 +19,14 @@ class Item extends Model
     // protected $primaryKey = 'id';
     // public $timestamps = false;
     protected $guarded = ['id'];
-    // protected $fillable = [];
+     protected $fillable = [
+         'item_name',
+         'number_of_item',
+         'item_type',
+         'item_size',
+         'notes',
+         'order_id',
+     ];
     // protected $hidden = [];
     // protected $dates = [];
 
@@ -34,6 +41,16 @@ class Item extends Model
     | RELATIONS
     |--------------------------------------------------------------------------
     */
+
+    public function order()
+    {
+        return $this->belongsTo('App\Models\Order');
+    }
+
+    public function shopify_images()
+    {
+        return $this->hasMany('App\Models\ShopifyImage');
+    }
 
     /*
     |--------------------------------------------------------------------------

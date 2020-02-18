@@ -50,8 +50,9 @@ class OrderController extends Controller
             $customerEmail = Arr::get($customer, 'email', '');
             $linkToOrder = $request->get("order_status_url");
 
-
             $lineItems = $request->get("line_items");
+
+            $items = [];
             foreach ($lineItems as $lineItem) {
                 $itemName = Arr::get($lineItem, 'title', '');
                 $numberOfItem = Arr::get($lineItem, 'quantity', 0);
@@ -82,20 +83,24 @@ class OrderController extends Controller
                     }
                 }
 
-                Queue::push(new CreateOrderJob(
-                    $orderNumber,
-                    $date,
-                    $customerName,
-                    $customerEmail,
-                    $linkToOrder,
-                    $itemName,
-                    $numberOfItem,
-                    $itemType,
-                    $itemSize,
-                    $images,
-                    $notes
-                ));
+                $items[] = [
+                    'itemName' => $itemName,
+                    'numberOfItem' => $numberOfItem,
+                    'itemType' => $itemType,
+                    'itemSize' => $itemSize,
+                    'images' => $images,
+                    'notes' => $notes,
+                ];
             }
+
+            Queue::push(new CreateOrderJob(
+                $orderNumber,
+                $date,
+                $customerName,
+                $customerEmail,
+                $linkToOrder,
+                $items
+            ));
 
             $result["success"] = true;
 
