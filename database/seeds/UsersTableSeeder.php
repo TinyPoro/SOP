@@ -9,8 +9,8 @@ class UsersTableSeeder extends Seeder
     public function run()
     {
 
-//        Role::create(['name' => 'Admin']);
-//        Role::create(['name' => 'Staff']);
+        Role::create(['name' => 'Admin']);
+        Role::create(['name' => 'Staff']);
 
         $this->createDataProduction();
     }

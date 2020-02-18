@@ -4,9 +4,32 @@ namespace App\Models;
 
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 
 class Order extends Model
 {
+    CONST SENT_TO_FC_STATUS = 0;
+    CONST DESIGNING_STATUS = 1;
+    CONST DONE_STATUS = 2;
+    CONST SHIPPED_STATUS = 3;
+    CONST PREVIEW_STATUS = 4;
+    CONST TRACKING_SENT_STATUS = 5;
+    CONST NIR_STATUS = 6;
+    CONST FIXING_STATUS = 7;
+    CONST REFUND_STATUS = 8;
+
+    const DATA_STATUS_ARRAY = [
+        Order::SENT_TO_FC_STATUS => 'Sent to FC ',
+        Order::DESIGNING_STATUS => 'Designing',
+        Order::DONE_STATUS => 'Done',
+        Order::SHIPPED_STATUS => 'Shipped',
+        Order::PREVIEW_STATUS => 'Preview',
+        Order::TRACKING_SENT_STATUS => 'Tracking Sent ',
+        Order::NIR_STATUS => 'NIR',
+        Order::FIXING_STATUS => 'Fixing',
+        Order::REFUND_STATUS => 'Refund',
+    ];
+
     use CrudTrait;
 
     /*
@@ -24,16 +47,44 @@ class Order extends Model
          'customer_name',
          'customer_email',
          'link_to_order',
+         'link_to_gd',
          'order_date',
+         'status',
      ];
     // protected $hidden = [];
-    // protected $dates = [];
+     protected $dates = ['order_date'];
 
     /*
     |--------------------------------------------------------------------------
     | FUNCTIONS
     |--------------------------------------------------------------------------
     */
+
+    public function getDateString()
+    {
+        return $this->order_date->format('M d');
+    }
+
+    public function getNumberOfItem()
+    {
+        $items = $this->items;
+
+        return count($items) > 0 ? $items[0]->number_of_item : 0;
+    }
+
+    public function getItemName()
+    {
+        $items = $this->items;
+
+        return count($items) > 0 ? $items[0]->item_name : 0;
+    }
+
+    public function getStatusText()
+    {
+        $status = $this->status;
+
+        return Arr::get(self::DATA_STATUS_ARRAY, $status, 'N/A');
+    }
 
     /*
     |--------------------------------------------------------------------------

@@ -82,7 +82,7 @@ class ShopifyHelpers
     }
 
     public function checkValidShopifyImage($filePath) {
-        if(filesize($filePath) < 10) return false;
+//        if(filesize($filePath) < 10) return false;
 
         return true;
     }

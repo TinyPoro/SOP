@@ -138,6 +138,7 @@ class CreateOrderJob implements ShouldQueue
             }
 
             if(!$hasValidImage) {
+                //gửi email lấy lại ảnh
                 $to_name = $order->customer_name;
                 $to_email = $order->customer_email;
 
@@ -150,6 +151,8 @@ class CreateOrderJob implements ShouldQueue
                         ->subject("<Noble Pawtrait> xin cung cấp lại ảnh");
                     $message->from(env('MAIL_USERNAME'),'Noble Pawtrait');
                 });
+
+                $order->status = Order::NIR_STATUS;
             }
 
             //đồng bộ trello
@@ -164,6 +167,9 @@ class CreateOrderJob implements ShouldQueue
             $listName = $dayFolderName;
             $list = $this->createTrelloBoardList($boardId, $listName);
             $card = $this->createTrelloListCard($list['id'], $cardName, $cardDesc);
+
+            $order->link_to_gd = $customerFolderUrl;
+            $order->save();
 
             \DB::commit();
         }catch (\Exception $e){
@@ -262,10 +268,10 @@ class CreateOrderJob implements ShouldQueue
     private function createTrelloListCard($listId, $cardName, $cardDesc, $duplicate = false) {
         if($card = $this->checkTrelloListCardExist($listId, $cardName)) {
             if(!$duplicate) {
-                $oldDesc = $card->desc;
+                $oldDesc = $card['desc'];
                 $newDesc = "$oldDesc\n****\n$cardDesc";
 
-                $card = $this->trelloClient->api('cards')->update($card->id, $cardName, [
+                $card = $this->trelloClient->api('cards')->update($card['id'], [
                     'desc' => $newDesc
                 ]);
 

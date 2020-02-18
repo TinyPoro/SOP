@@ -19,7 +19,9 @@ class CreateOrdersTable extends Migration
             $table->string('customer_name');
             $table->string('customer_email');
             $table->text('link_to_order');
+            $table->text('link_to_gd')->nullable();
             $table->date('order_date');
+            $table->integer('status')->default(\App\Models\Order::SENT_TO_FC_STATUS);
             $table->timestamps();
         });
     }
