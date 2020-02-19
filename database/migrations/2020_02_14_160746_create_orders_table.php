@@ -20,8 +20,8 @@ class CreateOrdersTable extends Migration
             $table->string('customer_email');
             $table->text('link_to_gd')->nullable();
             $table->date('order_date');
-            $table->date('total_price');
-            $table->date('shipping_method');
+            $table->string('total_price');
+            $table->string('shipping_method');
             $table->integer('status')->default(\App\Models\Order::DESIGNING_STATUS);
             $table->timestamps();
         });
