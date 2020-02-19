@@ -80,6 +80,12 @@ class OrderCrudController extends CrudController
             "type" => "model_function_custom",
             "function_name" => "getStatusText",
         ]);
+
+        $this->crud->addColumn([
+            'name' => "Note",
+            "type" => "model_function_custom",
+            "function_name" => "getNoteText",
+        ]);
     }
 
     protected function setupCreateOperation()

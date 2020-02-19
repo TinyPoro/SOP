@@ -88,8 +88,6 @@ class CreateOrderJob implements ShouldQueue
             $imagePosition = 1;
             $notePosition = 1;
 
-            $finalNote = "";
-
             foreach ($items as $item) {
                 $itemTitle = Arr::get($item, 'itemTitle', '');
                 $numberOfItem = Arr::get($item, 'numberOfItem', '');
@@ -109,9 +107,6 @@ class CreateOrderJob implements ShouldQueue
                     'notes' => $itemNote,
                     'order_id' => $order->id,
                 ]);
-
-                $finalNote .= $itemNote . "\n";
-
 
                 $productFolderName = $item->item_name;
                 $productFolder = $this->createGoogleDriveDir($customerFolder['path']."/", $productFolderName);
@@ -163,8 +158,8 @@ class CreateOrderJob implements ShouldQueue
             $customerFolderUrl = $this->getGoogleDriveUrl($customerFolder['path']);
             $cardName = $order->customer_name;
             $cardDesc = $hasValidImage ?
-                "- Link google drive: $customerFolderUrl\n- Note của khách hàng: $finalNote" :
-                "- Link google drive: $customerFolderUrl\n- Note của khách hàng: $finalNote\n- NIR";
+                "- Link google drive: $customerFolderUrl\n- Note của khách hàng: " . $order->getNoteText() :
+                "- Link google drive: $customerFolderUrl\n- Note của khách hàng: " . $order->getNoteText() . "\n- NIR";
 
             $listName = $dayFolderName;
             $list = $this->createTrelloBoardList($boardId, $listName);

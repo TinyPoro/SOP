@@ -87,6 +87,17 @@ class Order extends Model
         return $itemName;
     }
 
+    public function getNoteText()
+    {
+        $itemNote = "";
+
+        foreach ($this->items as $item) {
+            $itemNote .= $item->notes . "\n";
+        }
+
+        return $itemNote;
+    }
+
     public function getStatusText()
     {
         $status = $this->status;
