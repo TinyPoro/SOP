@@ -54,16 +54,21 @@ class ShopifyHelpers
         return $result;
     }
 
-    public function getGoogleDriveProductName($itemName, $itemType, $itemSize)
+    public function getGoogleDriveProductName($itemTitle, $itemVariantTitle)
     {
-        if($itemType === "Digital art") {
-            return $itemName;
-        } else if($itemType === "Canvas" or $itemType === "Poster") {
-            return $this->getGoogleDriveSize($itemSize) . " " . $itemType . " " . $itemName;
-        } else {
-            return null;
-        }
+        return "$itemTitle - $itemVariantTitle";
     }
+
+    public function getGoogleDriveImageName($orderId, $n)
+    {
+        return "$orderId-image-$n";
+    }
+
+    public function getGoogleDriveNoteName($orderId, $n)
+    {
+        return "$orderId-note-$n";
+    }
+
 
     private function getGoogleDriveSize($itemSize) {
         switch ($itemSize) {

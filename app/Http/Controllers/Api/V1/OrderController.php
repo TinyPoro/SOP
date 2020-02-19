@@ -54,12 +54,9 @@ class OrderController extends Controller
 
             $items = [];
             foreach ($lineItems as $lineItem) {
-                $itemName = Arr::get($lineItem, 'title', '');
+                $itemTitle = Arr::get($lineItem, 'title', '');
                 $numberOfItem = Arr::get($lineItem, 'quantity', 0);
-                $title = Arr::get($lineItem, 'variant_title', '');
-                $data = $this->shopifyHelpers->getItemTypeAndItemSizeFromTitle($title);
-                $itemType = Arr::get($data, 'type', '');
-                $itemSize = Arr::get($data, 'size', '');
+                $itemVariantTitle = Arr::get($lineItem, 'variant_title', '');
 
                 $properties = Arr::get($lineItem, 'properties', []);
 
@@ -84,10 +81,9 @@ class OrderController extends Controller
                 }
 
                 $items[] = [
-                    'itemName' => $itemName,
+                    'itemTitle' => $itemTitle,
                     'numberOfItem' => $numberOfItem,
-                    'itemType' => $itemType,
-                    'itemSize' => $itemSize,
+                    'itemVariantTitle' => $itemVariantTitle,
                     'images' => $images,
                     'notes' => $notes,
                 ];

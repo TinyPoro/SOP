@@ -88,45 +88,53 @@ class CreateOrderJob implements ShouldQueue
 
             //tạo item
             $items = $this->get('items');
+
+            $imagePosition = 1;
+            $notePosition = 1;
+
             $finalNote = "";
 
             foreach ($items as $item) {
-                $itemName = Arr::get($item, 'itemName', '');
+                $itemTitle = Arr::get($item, 'itemTitle', '');
                 $numberOfItem = Arr::get($item, 'numberOfItem', '');
-                $itemType = Arr::get($item, 'itemType', '');
-                $itemSize = Arr::get($item, 'itemSize', '');
+                $itemVariantTitle = Arr::get($item, 'itemVariantTitle', '');
                 $images = Arr::get($item, 'images', '');
                 $notes = Arr::get($item, 'notes', '');
 
+                $itemNote = "";
+                foreach ($notes as $note) {
+                    $itemNote .= "- " . $this->shopifyHelpers->getGoogleDriveNoteName($order->id, $notePosition) . ": " . $item->notes . "\n";
+                }
+
                 $item = Item::create([
-                    'item_name' => $itemName,
+                    'item_title' => $itemTitle,
                     'number_of_item' => $numberOfItem,
-                    'item_type' => $itemType,
-                    'item_size' => $itemSize,
-                    'notes' => implode(", ", $notes),
+                    'item_variant_title' => $itemVariantTitle,
+                    'notes' => $itemNote,
                     'order_id' => $order->id,
                 ]);
 
-                $finalNote .= $item->notes . ", ";
+                $finalNote .= $itemNote . "\n";
 
 
-                $productFolderName = $this->shopifyHelpers->getGoogleDriveProductName($item->item_name, $item->item_type, $item->item_size);
+                $productFolderName = $this->shopifyHelpers->getGoogleDriveProductName($item->item_title, $item->item_variant_title);
                 $productFolder = $this->createGoogleDriveDir($customerFolder['path']."/", $productFolderName);
 
 
                 // xử lý images
                 foreach ($images as $image) {
-                    $path =  $order->id."/".$item->id."/".uniqid();
+                    $imagePath =  $order->id."/".$item->id."/".$this->shopifyHelpers->getGoogleDriveImageName($order->id, $imagePosition);
+                    $imagePosition++;
 
-                    Storage::disk($imageDisk)->put($path, file_get_contents($image));
+                    Storage::disk($imageDisk)->put($imagePath, file_get_contents($image));
 
                     ShopifyImage::create([
                         'disk' => $imageDisk,
-                        'path' => $path,
+                        'path' => $imagePath,
                         'order_id' => $order->id
                     ]);
 
-                    $filePath = Storage::disk($imageDisk)->path($path);
+                    $filePath = Storage::disk($imageDisk)->path($imagePath);
                     $fileName = basename($filePath);
 
                     $this->uploadGoogleDriveFile($productFolder['path']."/", $fileName, $filePath);
@@ -137,23 +145,21 @@ class CreateOrderJob implements ShouldQueue
                 }
             }
 
-            if(!$hasValidImage) {
-                //gửi email lấy lại ảnh
-                $to_name = $order->customer_name;
-                $to_email = $order->customer_email;
-
-                $data = [
-                    "name" => $to_name,
-                    "body" => "Ảnh mô tả sản phẩm cho đơn hàng $order->link_to_order của bạn không đạt chất lượng. Bạn vui lòng gửi lại ảnh bằng cách phản hồi email này!"
-                ];
-                Mail::send('emails.mail', $data, function($message) use ($to_name, $to_email) {
-                    $message->to($to_email, $to_name)
-                        ->subject("<Noble Pawtrait> xin cung cấp lại ảnh");
-                    $message->from(env('MAIL_USERNAME'),'Noble Pawtrait');
-                });
-
-                $order->status = Order::NIR_STATUS;
-            }
+//            if(!$hasValidImage) {
+//                //gửi email lấy lại ảnh
+//                $to_name = $order->customer_name;
+//                $to_email = $order->customer_email;
+//
+//                $data = [
+//                    "name" => $to_name,
+//                    "body" => "Ảnh mô tả sản phẩm cho đơn hàng $order->link_to_order của bạn không đạt chất lượng. Bạn vui lòng gửi lại ảnh bằng cách phản hồi email này!"
+//                ];
+//                Mail::send('emails.mail', $data, function($message) use ($to_name, $to_email) {
+//                    $message->to($to_email, $to_name)
+//                        ->subject("<Noble Pawtrait> xin cung cấp lại ảnh");
+//                    $message->from(env('MAIL_USERNAME'),'Noble Pawtrait');
+//                });
+//            }
 
             //đồng bộ trello
             $boardId = env("TRELLO_BOARD_ID");

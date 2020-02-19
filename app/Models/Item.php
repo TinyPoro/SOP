@@ -20,10 +20,9 @@ class Item extends Model
     // public $timestamps = false;
     protected $guarded = ['id'];
      protected $fillable = [
-         'item_name',
+         'item_title',
          'number_of_item',
-         'item_type',
-         'item_size',
+         'item_variant_title',
          'notes',
          'order_id',
      ];
