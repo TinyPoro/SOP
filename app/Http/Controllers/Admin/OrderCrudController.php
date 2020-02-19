@@ -86,6 +86,18 @@ class OrderCrudController extends CrudController
             "type" => "model_function_custom",
             "function_name" => "getNoteText",
         ]);
+
+        $this->crud->addColumn([
+            'name' => "shipping_method",
+            "type" => "text",
+            "title" => "Shipping Method"
+        ]);
+
+        $this->crud->addColumn([
+            'name' => "total_price",
+            "type" => "text",
+            "title" => "Revenue"
+        ]);
     }
 
     protected function setupCreateOperation()

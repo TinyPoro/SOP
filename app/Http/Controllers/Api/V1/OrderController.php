@@ -10,7 +10,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Queue;
-use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
@@ -48,6 +47,8 @@ class OrderController extends Controller
             $customer = $request->get("customer");
             $customerName = Arr::get($customer, 'first_name', '') . " " . Arr::get($customer, 'last_name', '');
             $customerEmail = Arr::get($customer, 'email', '');
+
+            $totalPrice = Arr::get($customer, 'total_price', '');
 
             $lineItems = $request->get("line_items");
 
@@ -88,11 +89,22 @@ class OrderController extends Controller
                 ];
             }
 
+            $shippingMethods = [];
+            $shippingLines = $request->get("shipping_lines");
+            foreach ($shippingLines as $shippingLine) {
+                $title = Arr::get($shippingLine, 'title', '');
+
+                $shippingMethods[] = $title;
+            }
+
+
             Queue::push(new CreateOrderJob(
                 $orderNumber,
                 $date,
                 $customerName,
                 $customerEmail,
+                $totalPrice,
+                $shippingMethods,
                 $items
             ));
 

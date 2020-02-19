@@ -29,18 +29,24 @@ class CreateOrderJob implements ShouldQueue
     private $date;
     private $customerName;
     private $customerEmail;
+    private $totalPrice;
+    private $shippingMethods;
     private $items;
 
     public function __construct( $orderNumber,
                                  $date,
                                  $customerName,
                                  $customerEmail,
+                                 $totalPrice,
+                                 $shippingMethods,
                                  $items)
     {
         $this->orderNumber = $orderNumber;
         $this->date = $date;
         $this->customerName = $customerName;
         $this->customerEmail = $customerEmail;
+        $this->totalPrice = $totalPrice;
+        $this->shippingMethods = $shippingMethods;
         $this->items = $items;
 
         $trelloClient = new Client();
@@ -66,6 +72,8 @@ class CreateOrderJob implements ShouldQueue
                 'customer_name' => $this->get('customerName'),
                 'customer_email' => $this->get('customerEmail'),
                 'order_date' => $this->get('date'),
+                'total_price' => $this->get('totalPrice'),
+                'shipping_method' => implode(", ", $this->get('shippingMethods')),
             ]);
 
             // đồng bộ google drive (đến tầng khách hàng)

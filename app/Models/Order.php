@@ -49,6 +49,8 @@ class Order extends Model
          'link_to_order',
          'link_to_gd',
          'order_date',
+         'total_price',
+         'shipping_method',
          'status',
      ];
     // protected $hidden = [];
