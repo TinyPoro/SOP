@@ -48,7 +48,7 @@ class OrderController extends Controller
             $customerName = Arr::get($customer, 'first_name', '') . " " . Arr::get($customer, 'last_name', '');
             $customerEmail = Arr::get($customer, 'email', '');
 
-            $totalPrice = Arr::get($customer, 'total_price', '');
+            $totalPrice = $request->get('total_price', '');
 
             $lineItems = $request->get("line_items");
 

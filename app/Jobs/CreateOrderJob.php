@@ -105,7 +105,7 @@ class CreateOrderJob implements ShouldQueue
 
                 $itemNote = "";
                 foreach ($notes as $note) {
-                    $itemNote .= "- " . $this->shopifyHelpers->getGoogleDriveNoteName($order->id, $notePosition) . ": " . $item->notes . "\n";
+                    $itemNote .= "+ " . $this->shopifyHelpers->getGoogleDriveNoteName($order->order_number, $notePosition) . ": " . $note . "\n";
                 }
 
                 $item = Item::create([
@@ -122,7 +122,7 @@ class CreateOrderJob implements ShouldQueue
 
                 // xử lý images
                 foreach ($images as $image) {
-                    $imagePath =  $order->id."/".$item->id."/".$this->shopifyHelpers->getGoogleDriveImageName($order->id, $imagePosition);
+                    $imagePath =  $order->id."/".$item->id."/".$this->shopifyHelpers->getGoogleDriveImageName($order->order_number, $imagePosition);
                     $imagePosition++;
 
                     Storage::disk($imageDisk)->put($imagePath, file_get_contents($image));
@@ -166,8 +166,8 @@ class CreateOrderJob implements ShouldQueue
             $customerFolderUrl = $this->getGoogleDriveUrl($customerFolder['path']);
             $cardName = $order->customer_name;
             $cardDesc = $hasValidImage ?
-                "- Link google drive: $customerFolderUrl\n- Note của khách hàng: " . $order->getNoteText() :
-                "- Link google drive: $customerFolderUrl\n- Note của khách hàng: " . $order->getNoteText() . "\n- NIR";
+                "- Link google drive: $customerFolderUrl\n- Note của khách hàng: \n" . $order->getNoteText() :
+                "- Link google drive: $customerFolderUrl\n- Note của khách hàng: \n" . $order->getNoteText() . "\n- NIR";
 
             $listName = $dayFolderName;
             $list = $this->createTrelloBoardList($boardId, $listName);
