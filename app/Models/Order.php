@@ -86,6 +86,11 @@ class Order extends Model
         return Arr::get(self::DATA_STATUS_ARRAY, $status, 'N/A');
     }
 
+    public function getLinkToOrder()
+    {
+        return "https://noble-pawtrait.myshopify.com/admin/orders/$this->order_number";
+    }
+
     /*
     |--------------------------------------------------------------------------
     | RELATIONS

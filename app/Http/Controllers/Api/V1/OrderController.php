@@ -48,7 +48,6 @@ class OrderController extends Controller
             $customer = $request->get("customer");
             $customerName = Arr::get($customer, 'first_name', '') . " " . Arr::get($customer, 'last_name', '');
             $customerEmail = Arr::get($customer, 'email', '');
-            $linkToOrder = $request->get("order_status_url");
 
             $lineItems = $request->get("line_items");
 
@@ -94,7 +93,6 @@ class OrderController extends Controller
                 $date,
                 $customerName,
                 $customerEmail,
-                $linkToOrder,
                 $items
             ));
 

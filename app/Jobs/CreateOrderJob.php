@@ -29,21 +29,18 @@ class CreateOrderJob implements ShouldQueue
     private $date;
     private $customerName;
     private $customerEmail;
-    private $linkToOrder;
     private $items;
 
     public function __construct( $orderNumber,
                                  $date,
                                  $customerName,
                                  $customerEmail,
-                                 $linkToOrder,
                                  $items)
     {
         $this->orderNumber = $orderNumber;
         $this->date = $date;
         $this->customerName = $customerName;
         $this->customerEmail = $customerEmail;
-        $this->linkToOrder = $linkToOrder;
         $this->items = $items;
 
         $trelloClient = new Client();
@@ -68,7 +65,6 @@ class CreateOrderJob implements ShouldQueue
                 'order_number' => $this->get('orderNumber'),
                 'customer_name' => $this->get('customerName'),
                 'customer_email' => $this->get('customerEmail'),
-                'link_to_order' => $this->get('linkToOrder'),
                 'order_date' => $this->get('date'),
             ]);
 
@@ -152,7 +148,7 @@ class CreateOrderJob implements ShouldQueue
 //
 //                $data = [
 //                    "name" => $to_name,
-//                    "body" => "Ảnh mô tả sản phẩm cho đơn hàng $order->link_to_order của bạn không đạt chất lượng. Bạn vui lòng gửi lại ảnh bằng cách phản hồi email này!"
+//                    "body" => "Ảnh mô tả sản phẩm cho đơn hàng của bạn không đạt chất lượng. Bạn vui lòng gửi lại ảnh bằng cách phản hồi email này!"
 //                ];
 //                Mail::send('emails.mail', $data, function($message) use ($to_name, $to_email) {
 //                    $message->to($to_email, $to_name)

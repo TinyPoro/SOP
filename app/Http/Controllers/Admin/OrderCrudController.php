@@ -53,8 +53,8 @@ class OrderCrudController extends CrudController
 
         $this->crud->addColumn([
             'name' => "link_to_order",
-            "type" => "text",
-            "title" => "Link To Order"
+            "type" => "model_function_custom",
+            "function_name" => "getLinkToOrder"
         ]);
 
         $this->crud->addColumn([

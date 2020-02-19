@@ -18,7 +18,6 @@ class CreateOrdersTable extends Migration
             $table->string('order_number');
             $table->string('customer_name');
             $table->string('customer_email');
-            $table->text('link_to_order');
             $table->text('link_to_gd')->nullable();
             $table->date('order_date');
             $table->integer('status')->default(\App\Models\Order::DESIGNING_STATUS);
