@@ -272,19 +272,6 @@ class CreateOrderJob implements ShouldQueue
     }
 
     private function createTrelloListCard($listId, $cardName, $cardDesc, $duplicate = false) {
-        if($card = $this->checkTrelloListCardExist($listId, $cardName)) {
-            if(!$duplicate) {
-                $oldDesc = $card['desc'];
-                $newDesc = "$oldDesc\n****\n$cardDesc";
-
-                $card = $this->trelloClient->api('cards')->update($card['id'], [
-                    'desc' => $newDesc
-                ]);
-
-                return $card;
-            }
-        }
-
         $card = $this->trelloClient->api('lists')->cards()->create($listId, $cardName, [
             'desc' => $cardDesc
         ]);
