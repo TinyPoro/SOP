@@ -73,10 +73,10 @@ class CreateOrderJob implements ShouldQueue
             ]);
 
             // đồng bộ google drive (đến tầng khách hàng)
-            $monthFolderName = $order->order_date->format("M Y");
+            $monthFolderName = $order->order_date->format("F Y");
             $monthFolder = $this->createGoogleDriveDir("/", $monthFolderName);
 
-            $dayFolderName = $order->order_date->format("M d Y");
+            $dayFolderName = $order->order_date->format("F d, Y");
             $dayFolder = $this->createGoogleDriveDir($monthFolder['path']."/", $dayFolderName);
 
             $customerFolderName = $order->customer_name;
