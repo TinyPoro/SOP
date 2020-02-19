@@ -67,16 +67,24 @@ class Order extends Model
 
     public function getNumberOfItem()
     {
-        $items = $this->items;
+        $numberOfItem = 0;
 
-        return count($items) > 0 ? $items[0]->number_of_item : 0;
+        foreach ($this->items as $item) {
+            $numberOfItem += $item->number_of_item;
+        }
+
+        return $numberOfItem;
     }
 
     public function getItemName()
     {
-        $items = $this->items;
+        $itemName = "";
 
-        return count($items) > 0 ? $items[0]->item_name : 0;
+        foreach ($this->items as $item) {
+            $itemName .= $item->item_name . "\n";
+        }
+
+        return $itemName;
     }
 
     public function getStatusText()

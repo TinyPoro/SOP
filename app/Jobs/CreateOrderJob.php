@@ -113,7 +113,7 @@ class CreateOrderJob implements ShouldQueue
                 $finalNote .= $itemNote . "\n";
 
 
-                $productFolderName = $this->shopifyHelpers->getGoogleDriveProductName($item->item_title, $item->item_variant_title);
+                $productFolderName = $item->item_name;
                 $productFolder = $this->createGoogleDriveDir($customerFolder['path']."/", $productFolderName);
 
 

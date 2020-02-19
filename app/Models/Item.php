@@ -63,6 +63,11 @@ class Item extends Model
     |--------------------------------------------------------------------------
     */
 
+    public function getItemNameAttribute()
+    {
+        return "$this->item_title - $this->item_variant_title";
+    }
+
     /*
     |--------------------------------------------------------------------------
     | MUTATORS
