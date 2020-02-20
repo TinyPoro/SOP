@@ -199,7 +199,7 @@ class CreateOrderJob implements ShouldQueue
 
         $dir = $contents
             ->where('type', '=', 'dir')
-            ->where('filename', '=', $dirName)
+            ->where('name', '=', $dirName)
             ->first();
 
         return $dir;
