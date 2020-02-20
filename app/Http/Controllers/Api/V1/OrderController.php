@@ -40,6 +40,7 @@ class OrderController extends Controller
         Log::info(print_r($request->all(), true));
 
         try {
+            $orderId = $request->get("id");
             $orderNumber = $request->get("order_number");
             $date = $request->get("created_at");
             $date = Carbon::createFromTimeString($date);
@@ -99,6 +100,7 @@ class OrderController extends Controller
 
 
             Queue::push(new CreateOrderJob(
+                $orderId,
                 $orderNumber,
                 $date,
                 $customerName,

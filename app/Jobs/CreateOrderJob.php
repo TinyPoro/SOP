@@ -25,6 +25,7 @@ class CreateOrderJob implements ShouldQueue
     private $trelloClient;
     private $shopifyHelpers;
 
+    private $orderId;
     private $orderNumber;
     private $date;
     private $customerName;
@@ -33,7 +34,8 @@ class CreateOrderJob implements ShouldQueue
     private $shippingMethods;
     private $items;
 
-    public function __construct( $orderNumber,
+    public function __construct( $orderId,
+                                 $orderNumber,
                                  $date,
                                  $customerName,
                                  $customerEmail,
@@ -41,6 +43,7 @@ class CreateOrderJob implements ShouldQueue
                                  $shippingMethods,
                                  $items)
     {
+        $this->orderId = $orderId;
         $this->orderNumber = $orderNumber;
         $this->date = $date;
         $this->customerName = $customerName;
@@ -68,6 +71,7 @@ class CreateOrderJob implements ShouldQueue
 
             //tạo đơn hàng
             $order = Order::create([
+                'order_id' => $this->get('orderId'),
                 'order_number' => $this->get('orderNumber'),
                 'customer_name' => $this->get('customerName'),
                 'customer_email' => $this->get('customerEmail'),

@@ -43,6 +43,7 @@ class Order extends Model
     // public $timestamps = false;
     protected $guarded = ['id'];
      protected $fillable = [
+         'order_id',
          'order_number',
          'customer_name',
          'customer_email',
@@ -51,6 +52,7 @@ class Order extends Model
          'order_date',
          'total_price',
          'shipping_method',
+         'internal_remark',
          'status',
      ];
     // protected $hidden = [];
@@ -94,8 +96,10 @@ class Order extends Model
         $itemNote = "";
 
         foreach ($this->items as $item) {
-            $itemNote .= $item->notes . "\n";
+            $itemNote .= $item->notes;
         }
+
+        $itemNote = preg_replace("/(?<!^)\+/", "<br/>+", $itemNote);
 
         return $itemNote;
     }
@@ -109,7 +113,16 @@ class Order extends Model
 
     public function getLinkToOrder()
     {
-        return "https://noble-pawtrait.myshopify.com/admin/orders/$this->order_number";
+        $link = "https://noble-pawtrait.myshopify.com/admin/orders/$this->order_id";
+
+        return '<a href="' . $link .'" target="_blank">shopify</a>';
+    }
+
+    public function getLinkToGd()
+    {
+        $link = $this->link_to_gd;
+
+        return '<a href="' . $link .'" target="_blank">drive</a>';
     }
 
     /*

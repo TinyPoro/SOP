@@ -28,6 +28,12 @@ class OrderCrudController extends CrudController
 
         $this->crud->operation(['list', 'show'], function() {
             $this->setupListOperation();
+
+            $this->crud->addColumn([
+                'name' => "Note",
+                "type" => "model_function_custom",
+                "function_name" => "getNoteText",
+            ]);
         });
 
         $this->crud->addFilter([
@@ -121,8 +127,8 @@ class OrderCrudController extends CrudController
 
         $this->crud->addColumn([
             'name' => "link_to_gd",
-            "type" => "text",
-            "title" => "Link To gdrive"
+            "type" => "model_function_custom",
+            "function_name" => "getLinkToGd"
         ]);
 
         $this->crud->addColumn([
@@ -141,12 +147,6 @@ class OrderCrudController extends CrudController
             'name' => "Status",
             "type" => "model_function_custom",
             "function_name" => "getStatusText",
-        ]);
-
-        $this->crud->addColumn([
-            'name' => "Note",
-            "type" => "model_function_custom",
-            "function_name" => "getNoteText",
         ]);
 
         $this->crud->addColumn([
@@ -172,6 +172,12 @@ class OrderCrudController extends CrudController
             "type" => "select2_from_array",
             "options" => Order::ORDER_STATUS_ARRAY,
             'allows_null' => false,
+        ]);
+
+        $this->crud->addField([
+            'name' => "internal_remark",
+            'label' => "Internal Remark",
+            "type" => "textarea",
         ]);
     }
 
