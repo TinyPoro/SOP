@@ -10,6 +10,7 @@ namespace App\Helpers;
 
 
 use App\Crawler\PuPHPeteerCrawler;
+use Illuminate\Support\Arr;
 
 class ShopifyHelpers
 {
@@ -87,8 +88,49 @@ class ShopifyHelpers
     }
 
     public function checkValidShopifyImage($filePath) {
-//        if(filesize($filePath) < 10) return false;
+        if(filesize($filePath) <= 680000) return false;
+
+        if($this->getImagePixels($filePath) <= 900 * 900) return false;
+
+        if($this->getDpiImageMagick($filePath) <= 120) return false;
 
         return true;
+    }
+
+    private function getImagePixels($filePath)
+    {
+        try {
+            $imageSize = getimagesize($filePath);
+
+            return $imageSize[0] * $imageSize[1];
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+
+    private function getDpiImageMagick($filePath)
+    {
+        $cmd = 'identify -quiet -format "%x" '.$filePath;
+        @exec(escapeshellcmd($cmd), $data);
+
+        if($data && is_array($data)){
+            $data = Arr::get($data, 0, null);
+            if(!$data) return 72;
+
+            $data = explode(' ', $data);
+
+            $value = Arr::get($data, 0, 72);
+            $type = Arr::get($data, 1, null);
+
+            if(!$type){
+                return $value;
+            }elseif($type == 'PixelsPerCentimeter'){
+                return ceil($value * 2.54);
+            }elseif($type == 'PixelsPerInch'){
+                return $value;
+            }
+        }
+
+        return 72;
     }
 }
