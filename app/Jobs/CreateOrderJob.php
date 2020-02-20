@@ -116,7 +116,7 @@ class CreateOrderJob implements ShouldQueue
                     'order_id' => $order->id,
                 ]);
 
-                $productFolderName = $item->item_title;
+                $productFolderName = $item->item_name;
                 $productFolder = $this->createGoogleDriveDir($customerFolder['path']."/", $productFolderName);
 
 

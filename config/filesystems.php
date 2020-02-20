@@ -71,6 +71,13 @@ return [
             'visibility' => 'public',
         ],
 
+        'backup' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/backup'),
+            'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+        ],
+
         'google' => [
             'driver' => 'google',
             'clientId' => env('GOOGLE_DRIVE_CLIENT_ID'),
