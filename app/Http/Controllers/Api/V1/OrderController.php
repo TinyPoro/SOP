@@ -112,14 +112,14 @@ class OrderController extends Controller
 
             $result["success"] = true;
 
-            return response()->json($result);
+            return response()->json($result, 200);
 
         } catch (\Exception $e){
             Log::error($e->getMessage());
 
             $result["message"] = $e->getMessage();
 
-            return response()->json($result);
+            return response()->json($result, 500);
         }
     }
 }
