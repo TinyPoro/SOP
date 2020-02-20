@@ -18,6 +18,7 @@ class CreateItemsTable extends Migration
             $table->string('item_title');
             $table->string('number_of_item');
             $table->string('item_variant_title');
+            $table->string('item_name');
             $table->string('notes');
             $table->unsignedBigInteger('order_id');
             $table->timestamps();

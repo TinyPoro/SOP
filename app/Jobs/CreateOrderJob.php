@@ -112,6 +112,7 @@ class CreateOrderJob implements ShouldQueue
                     'item_title' => $itemTitle,
                     'number_of_item' => $numberOfItem,
                     'item_variant_title' => $itemVariantTitle,
+                    'item_name' => "$itemTitle - $itemVariantTitle",
                     'notes' => $itemNote,
                     'order_id' => $order->id,
                 ]);

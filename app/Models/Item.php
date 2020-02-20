@@ -23,6 +23,7 @@ class Item extends Model
          'item_title',
          'number_of_item',
          'item_variant_title',
+         'item_name',
          'notes',
          'order_id',
      ];
@@ -62,11 +63,6 @@ class Item extends Model
     | ACCESSORS
     |--------------------------------------------------------------------------
     */
-
-    public function getItemNameAttribute()
-    {
-        return "$this->item_title - $this->item_variant_title";
-    }
 
     /*
     |--------------------------------------------------------------------------

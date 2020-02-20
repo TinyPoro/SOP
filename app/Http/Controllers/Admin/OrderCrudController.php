@@ -29,6 +29,68 @@ class OrderCrudController extends CrudController
         $this->crud->operation(['list', 'show'], function() {
             $this->setupListOperation();
         });
+
+        $this->crud->addFilter([
+            'type' => 'dropdown',
+            'name' => 'status',
+            'label'=> 'Trạng thái'
+        ],
+            Order::ORDER_STATUS_ARRAY,
+            function($value) {
+                $this->crud->addClause('where', 'status', '=', $value);
+            });
+
+        $this->crud->addFilter([
+            'type' => 'text',
+            'name' => 'order_number',
+            'label'=> 'Mã đơn'
+        ],
+            false,
+            function($value) {
+                $this->crud->addClause('where', 'order_number', '=', $value);
+            });
+
+        $this->crud->addFilter([
+            'type' => 'text',
+            'name' => 'customer_name',
+            'label'=> 'Tên khách hàng'
+        ],
+            false,
+            function($value) {
+                $this->crud->addClause('where', 'customer_name', 'like', "%$value%");
+            });
+
+        $this->crud->addFilter([
+            'type' => 'text',
+            'name' => 'number_of_item',
+            'label'=> 'Số items'
+        ],
+            false,
+            function($value) {
+                $this->crud->query = $this->crud->query->whereRaw("(SELECT SUM(number_of_item) from items where items.order_id = orders.id) = $value");
+            });
+
+        $this->crud->addFilter([
+            'type' => 'text',
+            'name' => 'item_name',
+            'label'=> 'Tên item'
+        ],
+            false,
+            function($value) {
+                $this->crud->query = $this->crud->query->whereHas('items', function ($query) use ($value) {
+                    $query->where('item_name', 'like', "%$value%");
+                });
+            });
+
+        $this->crud->addFilter([
+            'type' => 'text',
+            'name' => 'shipping_method',
+            'label'=> 'Phương thức ship'
+        ],
+            false,
+            function($value) {
+                $this->crud->addClause('where', 'shipping_method', '=', $value);
+            });
     }
 
     protected function setupListOperation()
@@ -108,7 +170,7 @@ class OrderCrudController extends CrudController
             'name' => "status",
             'label' => "Status",
             "type" => "select2_from_array",
-            "options" => Order::DATA_STATUS_ARRAY,
+            "options" => Order::ORDER_STATUS_ARRAY,
             'allows_null' => false,
         ]);
     }

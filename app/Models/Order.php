@@ -18,7 +18,7 @@ class Order extends Model
     CONST FIXING_STATUS = 7;
     CONST REFUND_STATUS = 8;
 
-    const DATA_STATUS_ARRAY = [
+    const ORDER_STATUS_ARRAY = [
         Order::SENT_TO_FC_STATUS => 'Sent to FC ',
         Order::DESIGNING_STATUS => 'Designing',
         Order::DONE_STATUS => 'Done',
@@ -104,7 +104,7 @@ class Order extends Model
     {
         $status = $this->status;
 
-        return Arr::get(self::DATA_STATUS_ARRAY, $status, 'N/A');
+        return Arr::get(self::ORDER_STATUS_ARRAY, $status, 'N/A');
     }
 
     public function getLinkToOrder()
