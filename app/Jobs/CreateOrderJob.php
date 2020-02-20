@@ -178,8 +178,8 @@ class CreateOrderJob implements ShouldQueue
             $customerFolderUrl = $this->getGoogleDriveUrl($customerFolder['path']);
             $cardName = $order->customer_name;
             $cardDesc = $hasValidImage ?
-                "-Tên sản phẩm: $itemTitleString\n-Loại sản phẩm: $itemVariantString\n- Link google drive: $customerFolderUrl\n- Note của khách hàng: \n" . $order->getNoteTextForTrello() :
-                "-Tên sản phẩm: $itemTitleString\n-Loại sản phẩm: $itemVariantString\n- Link google drive: $customerFolderUrl\n- Note của khách hàng: \n" . $order->getNoteTextForTrello() . "\n- NIR";
+                "- Tên sản phẩm: $itemTitleString\n- Loại sản phẩm: $itemVariantString\n- Link google drive: $customerFolderUrl\n- Note của khách hàng: \n" . $order->getNoteTextForTrello() :
+                "- Tên sản phẩm: $itemTitleString\n- Loại sản phẩm: $itemVariantString\n- Link google drive: $customerFolderUrl\n- Note của khách hàng: \n" . $order->getNoteTextForTrello() . "\n- NIR";
 
             $listName = $dayFolderName;
             $list = $this->createTrelloBoardList($boardId, $listName);
