@@ -110,6 +110,7 @@ class CreateOrderJob implements ShouldQueue
                 $itemNote = "";
                 foreach ($notes as $note) {
                     $itemNote .= "+ " . $this->shopifyHelpers->getGoogleDriveNoteName($order->order_number, $notePosition) . ": " . $note . "\n";
+                    $notePosition++;
                 }
 
                 $item = Item::create([
