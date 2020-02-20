@@ -100,12 +100,18 @@ class CreateOrderJob implements ShouldQueue
             $imagePosition = 1;
             $notePosition = 1;
 
+            $itemTitleString = "";
+            $itemVariantString = "";
+
             foreach ($items as $item) {
                 $itemTitle = Arr::get($item, 'itemTitle', '');
                 $numberOfItem = Arr::get($item, 'numberOfItem', '');
                 $itemVariantTitle = Arr::get($item, 'itemVariantTitle', '');
                 $images = Arr::get($item, 'images', '');
                 $notes = Arr::get($item, 'notes', '');
+
+                $itemTitleString .= $itemTitle . ", ";
+                $itemVariantString .= $itemVariantTitle . ", ";
 
                 $itemNote = "";
                 foreach ($notes as $note) {
@@ -172,8 +178,8 @@ class CreateOrderJob implements ShouldQueue
             $customerFolderUrl = $this->getGoogleDriveUrl($customerFolder['path']);
             $cardName = $order->customer_name;
             $cardDesc = $hasValidImage ?
-                "- Link google drive: $customerFolderUrl\n- Note của khách hàng: \n" . $order->getNoteTextForTrello() :
-                "- Link google drive: $customerFolderUrl\n- Note của khách hàng: \n" . $order->getNoteTextForTrello() . "\n- NIR";
+                "-Tên sản phẩm: $itemTitleString\n-Loại sản phẩm: $itemVariantString\n- Link google drive: $customerFolderUrl\n- Note của khách hàng: \n" . $order->getNoteTextForTrello() :
+                "-Tên sản phẩm: $itemTitleString\n-Loại sản phẩm: $itemVariantString\n- Link google drive: $customerFolderUrl\n- Note của khách hàng: \n" . $order->getNoteTextForTrello() . "\n- NIR";
 
             $listName = $dayFolderName;
             $list = $this->createTrelloBoardList($boardId, $listName);
