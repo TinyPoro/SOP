@@ -6,6 +6,7 @@ use App\Http\Requests\OrderRequest;
 use App\Models\Order;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class OrderCrudController
@@ -97,6 +98,18 @@ class OrderCrudController extends CrudController
             function($value) {
                 $this->crud->addClause('where', 'shipping_method', '=', $value);
             });
+
+        $this->crud->operation(['list', 'show'], function() {
+            $this->crud->removeButton('create');
+
+            $user = Auth::user();
+
+            if($user and $user->hasRole('Staff')) {
+                $this->crud->removeButton('delete');
+            }
+        });
+
+
     }
 
     protected function setupListOperation()
