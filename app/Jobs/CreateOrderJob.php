@@ -223,6 +223,8 @@ class CreateOrderJob implements ShouldQueue
     }
 
     private function createGoogleDriveDir($path, $dirName, $duplicate = false) {
+        $dirName = str_replace("/", "-", $dirName);
+
         if($dir = $this->checkGoogleDriveDirExisted($path, $dirName)){
             if(!$duplicate) {
                 return $dir;
