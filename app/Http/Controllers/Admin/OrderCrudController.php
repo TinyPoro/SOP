@@ -27,10 +27,6 @@ class OrderCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/order');
         $this->crud->setEntityNameStrings('order', 'orders');
 
-        $this->crud->operation(['show'], function() {
-
-        });
-
         $this->crud->addFilter([
             'type' => 'dropdown',
             'name' => 'status',
@@ -93,7 +89,7 @@ class OrderCrudController extends CrudController
                 $this->crud->addClause('where', 'shipping_method', '=', $value);
             });
 
-        $this->crud->operation(['list', 'show'], function() {
+        $this->crud->operation(['show'], function() {
             $this->crud->removeButton('create');
 
             $user = Auth::user();
@@ -103,7 +99,11 @@ class OrderCrudController extends CrudController
             }
         });
 
+        $this->crud->operation(['list'], function() {
+            $this->crud->removeButtons(['create', 'show', 'update', 'delete']);
 
+            $this->crud->addButton("line", "custom_dropdown", "view", 'crud::buttons.custom_dropdown');
+        });
     }
 
     protected function setupShowOperation()
