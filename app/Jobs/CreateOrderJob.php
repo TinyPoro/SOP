@@ -142,7 +142,7 @@ class CreateOrderJob implements ShouldQueue
                     ShopifyImage::create([
                         'disk' => $imageDisk,
                         'path' => $imagePath,
-                        'order_id' => $order->id
+                        'item_id' => $item->id
                     ]);
 
                     $filePath = Storage::disk($imageDisk)->path($imagePath);
