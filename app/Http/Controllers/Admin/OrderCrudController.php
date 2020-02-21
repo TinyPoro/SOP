@@ -27,14 +27,8 @@ class OrderCrudController extends CrudController
         $this->crud->setRoute(config('backpack.base.route_prefix') . '/order');
         $this->crud->setEntityNameStrings('order', 'orders');
 
-        $this->crud->operation(['list', 'show'], function() {
-            $this->setupListOperation();
+        $this->crud->operation(['show'], function() {
 
-            $this->crud->addColumn([
-                'name' => "Note",
-                "type" => "model_function_custom",
-                "function_name" => "getNoteText",
-            ]);
         });
 
         $this->crud->addFilter([
@@ -112,6 +106,29 @@ class OrderCrudController extends CrudController
 
     }
 
+    protected function setupShowOperation()
+    {
+        $this->setupListOperation();
+
+        $this->crud->addColumn([
+            'name' => "shipping_method",
+            "type" => "text",
+            "title" => "Shipping Method"
+        ]);
+
+        $this->crud->addColumn([
+            'name' => "total_price",
+            "type" => "text",
+            "title" => "Revenue"
+        ]);
+
+        $this->crud->addColumn([
+            'name' => "customer_email",
+            "type" => "text",
+            "title" => "Customer Email"
+        ]);
+    }
+
     protected function setupListOperation()
     {
         $this->crud->addColumn([
@@ -145,33 +162,33 @@ class OrderCrudController extends CrudController
         ]);
 
         $this->crud->addColumn([
-            'name' => "# of item",
+            'name' => "#_of_item",
             "type" => "model_function_custom",
             "function_name" => "getNumberOfItem",
         ]);
 
         $this->crud->addColumn([
-            'name' => "Item name",
+            'name' => "item_name",
             "type" => "model_function_custom",
             "function_name" => "getItemName",
         ]);
 
         $this->crud->addColumn([
-            'name' => "Status",
+            'name' => "status",
             "type" => "model_function_custom",
             "function_name" => "getStatusText",
         ]);
 
         $this->crud->addColumn([
-            'name' => "shipping_method",
-            "type" => "text",
-            "title" => "Shipping Method"
+            'name' => "note",
+            "type" => "model_function_custom",
+            "function_name" => "getNoteText",
         ]);
 
         $this->crud->addColumn([
-            'name' => "total_price",
+            'name' => "internal_remark",
             "type" => "text",
-            "title" => "Revenue"
+            "title" => "Internal Remark"
         ]);
     }
 
