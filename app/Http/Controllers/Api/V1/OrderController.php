@@ -98,6 +98,17 @@ class OrderController extends Controller
                 $shippingMethods[] = $title;
             }
 
+            $shippingAddress = $request->get("shipping_address");
+            $shippingName = Arr::get($shippingAddress, 'name', '');
+            $shippingAddress1 = Arr::get($shippingAddress, 'address1', '');
+            $shippingCity = Arr::get($shippingAddress, 'city', '');
+            $shippingProvinceCode = Arr::get($shippingAddress, 'province_code', '');
+            $shippingZip = Arr::get($shippingAddress, 'zip', '');
+            $shippingCountry = Arr::get($shippingAddress, 'country', '');
+            $shippingPhone = Arr::get($shippingAddress, 'phone', '');
+
+            $shippingAddressText = "$shippingName\n$shippingAddress1\n$shippingCity $shippingProvinceCode $shippingZip\n$shippingCountry\n$shippingPhone";
+
 
             Queue::push(new CreateOrderJob(
                 $orderId,
@@ -107,7 +118,8 @@ class OrderController extends Controller
                 $customerEmail,
                 $totalPrice,
                 $shippingMethods,
-                $items
+                $items,
+                $shippingAddressText
             ));
 
             $result["success"] = true;

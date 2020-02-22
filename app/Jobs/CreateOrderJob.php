@@ -33,6 +33,7 @@ class CreateOrderJob implements ShouldQueue
     private $totalPrice;
     private $shippingMethods;
     private $items;
+    private $shippingAddressText;
 
     public function __construct( $orderId,
                                  $orderNumber,
@@ -41,7 +42,8 @@ class CreateOrderJob implements ShouldQueue
                                  $customerEmail,
                                  $totalPrice,
                                  $shippingMethods,
-                                 $items)
+                                 $items,
+                                 $shippingAddressText)
     {
         $this->orderId = $orderId;
         $this->orderNumber = $orderNumber;
@@ -51,6 +53,7 @@ class CreateOrderJob implements ShouldQueue
         $this->totalPrice = $totalPrice;
         $this->shippingMethods = $shippingMethods;
         $this->items = $items;
+        $this->shippingAddressText = $shippingAddressText;
 
         $trelloClient = new Client();
         $trelloClient->authenticate(env('TRELLO_KEY'), env('TRELLO_SECRET'), Client::AUTH_URL_CLIENT_ID);
@@ -78,6 +81,7 @@ class CreateOrderJob implements ShouldQueue
                 'order_date' => $this->get('date'),
                 'total_price' => $this->get('totalPrice'),
                 'shipping_method' => implode(", ", $this->get('shippingMethods')),
+                'shipping_address' => $this->get('shippingAddressText'),
             ]);
 
             // đồng bộ google drive (đến tầng khách hàng)

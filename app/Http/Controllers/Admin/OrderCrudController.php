@@ -127,6 +127,12 @@ class OrderCrudController extends CrudController
             "type" => "text",
             "title" => "Customer Email"
         ]);
+
+        $this->crud->addColumn([
+            'name' => "shipping_address",
+            "type" => "text",
+            "title" => "Shipping Address"
+        ]);
     }
 
     protected function setupListOperation()
