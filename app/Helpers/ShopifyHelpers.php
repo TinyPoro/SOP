@@ -92,7 +92,7 @@ class ShopifyHelpers
 
         if($this->getImagePixels($filePath) <= 900 * 900) return false;
 
-        if($this->getDpiImageMagick($filePath) <= 120) return false;
+        if($this->getDpiImageMagick($filePath) < 71) return false;
 
         return true;
     }
