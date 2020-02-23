@@ -25,35 +25,11 @@ class CreateOrderJob implements ShouldQueue
     private $trelloClient;
     private $shopifyHelpers;
 
-    private $orderId;
-    private $orderNumber;
-    private $date;
-    private $customerName;
-    private $customerEmail;
-    private $totalPrice;
-    private $shippingMethods;
-    private $items;
-    private $shippingAddressText;
+    private $orderData;
 
-    public function __construct( $orderId,
-                                 $orderNumber,
-                                 $date,
-                                 $customerName,
-                                 $customerEmail,
-                                 $totalPrice,
-                                 $shippingMethods,
-                                 $items,
-                                 $shippingAddressText)
+    public function __construct( $orderData)
     {
-        $this->orderId = $orderId;
-        $this->orderNumber = $orderNumber;
-        $this->date = $date;
-        $this->customerName = $customerName;
-        $this->customerEmail = $customerEmail;
-        $this->totalPrice = $totalPrice;
-        $this->shippingMethods = $shippingMethods;
-        $this->items = $items;
-        $this->shippingAddressText = $shippingAddressText;
+        $this->orderData = $orderData;
 
         $trelloClient = new Client();
         $trelloClient->authenticate(env('TRELLO_KEY'), env('TRELLO_SECRET'), Client::AUTH_URL_CLIENT_ID);
@@ -69,19 +45,118 @@ class CreateOrderJob implements ShouldQueue
      */
     public function handle()
     {
+        try {
+            $orderData = $this->get("orderData");
+            
+            $orderId = Arr::get($orderData, "id", "");
+            $orderNumber = Arr::get($orderData,"order_number");
+            $date = Arr::get($orderData,"created_at");
+            $date = Carbon::createFromTimeString($date);
+
+            $customer = Arr::get($orderData,"customer");
+            $customerName = Arr::get($customer, 'first_name', '') . " " . Arr::get($customer, 'last_name', '');
+            $customerEmail = Arr::get($customer, 'email', '');
+
+            $totalPrice = Arr::get($orderData,'total_price', '');
+
+            $lineItems = Arr::get($orderData,"line_items");
+
+            $items = [];
+            foreach ($lineItems as $lineItem) {
+                $itemTitle = Arr::get($lineItem, 'title', '');
+                $numberOfItem = Arr::get($lineItem, 'quantity', 0);
+                $itemVariantTitle = Arr::get($lineItem, 'variant_title', '');
+
+                $properties = Arr::get($lineItem, 'properties', []);
+
+                $images = [];
+                $notes = [];
+
+                foreach ($properties as $property) {
+                    $name = Arr::get($property, 'name', null);
+                    $value = Arr::get($property, 'value', null);
+
+                    if($name) {
+                        if(preg_match("/^Uploaded image/", $name)) {
+                            $imageSrc = $this->shopifyHelpers->getImageSrcFromCdnUrl($value);
+
+                            $images[] = $imageSrc;
+                        }
+
+                        if(preg_match("/^Note/", $name)) {
+                            $notes[] = $value;
+                        }
+                    }
+                }
+
+                $items[] = [
+                    'itemTitle' => $itemTitle,
+                    'numberOfItem' => $numberOfItem,
+                    'itemVariantTitle' => $itemVariantTitle,
+                    'images' => $images,
+                    'notes' => $notes,
+                ];
+            }
+
+            $shippingMethods = [];
+            $shippingLines = Arr::get($orderData,"shipping_lines");
+            foreach ($shippingLines as $shippingLine) {
+                $title = Arr::get($shippingLine, 'title', '');
+
+                $shippingMethods[] = $title;
+            }
+
+            $shippingMethods = implode(", ", $shippingMethods);
+
+            $shippingAddress = Arr::get($orderData,"shipping_address");
+            $shippingName = Arr::get($shippingAddress, 'name', '');
+            $shippingAddress1 = Arr::get($shippingAddress, 'address1', '');
+            $shippingCity = Arr::get($shippingAddress, 'city', '');
+            $shippingProvinceCode = Arr::get($shippingAddress, 'province_code', '');
+            $shippingZip = Arr::get($shippingAddress, 'zip', '');
+            $shippingCountry = Arr::get($shippingAddress, 'country', '');
+            $shippingPhone = Arr::get($shippingAddress, 'phone', '');
+
+            $shippingAddressText = "$shippingName\n$shippingAddress1\n$shippingCity $shippingProvinceCode $shippingZip\n$shippingCountry\n$shippingPhone";
+
+
+            $this->storeOrder($orderId,
+                $orderNumber,
+                $date,
+                $customerName,
+                $customerEmail,
+                $totalPrice,
+                $shippingMethods,
+                $items,
+                $shippingAddressText);
+        } catch (\Exception $e) {
+            \Log::info($e->getMessage());
+        }
+    }
+
+    public function storeOrder($orderId,
+                               $orderNumber,
+                               $date,
+                               $customerName,
+                               $customerEmail,
+                               $totalPrice,
+                               $shippingMethods,
+                               $items,
+                               $shippingAddressText)
+    {
         try{
             \DB::beginTransaction();
 
             //tạo đơn hàng
             $order = Order::create([
-                'order_id' => $this->get('orderId'),
-                'order_number' => $this->get('orderNumber'),
-                'customer_name' => $this->get('customerName'),
-                'customer_email' => $this->get('customerEmail'),
-                'order_date' => $this->get('date'),
-                'total_price' => $this->get('totalPrice'),
-                'shipping_method' => implode(", ", $this->get('shippingMethods')),
-                'shipping_address' => $this->get('shippingAddressText'),
+                'order_id' => $orderId,
+                'order_number' => $orderNumber,
+                'customer_name' => $customerName,
+                'customer_email' => $customerEmail,
+                'order_date' => $date,
+                'total_price' => $totalPrice,
+                'shipping_method' => $shippingMethods,
+                'shipping_address' => $shippingAddressText,
             ]);
 
             // đồng bộ google drive (đến tầng khách hàng)
@@ -99,7 +174,6 @@ class CreateOrderJob implements ShouldQueue
             $hasValidImage = false;
 
             //tạo item
-            $items = $this->get('items');
 
             $imagePosition = 1;
             $notePosition = 1;
