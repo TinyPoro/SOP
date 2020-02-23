@@ -46,20 +46,18 @@ class CreateOrderJob implements ShouldQueue
     public function handle()
     {
         try {
-            $orderData = $this->get("orderData");
-            
-            $orderId = Arr::get($orderData, "id", "");
-            $orderNumber = Arr::get($orderData,"order_number");
-            $date = Arr::get($orderData,"created_at");
+            $orderId = Arr::get($this->orderData, "id", "");
+            $orderNumber = Arr::get($this->orderData,"order_number");
+            $date = Arr::get($this->orderData,"created_at");
             $date = Carbon::createFromTimeString($date);
 
-            $customer = Arr::get($orderData,"customer");
+            $customer = Arr::get($this->orderData,"customer");
             $customerName = Arr::get($customer, 'first_name', '') . " " . Arr::get($customer, 'last_name', '');
             $customerEmail = Arr::get($customer, 'email', '');
 
-            $totalPrice = Arr::get($orderData,'total_price', '');
+            $totalPrice = Arr::get($this->orderData,'total_price', '');
 
-            $lineItems = Arr::get($orderData,"line_items");
+            $lineItems = Arr::get($this->orderData,"line_items");
 
             $items = [];
             foreach ($lineItems as $lineItem) {
@@ -99,7 +97,7 @@ class CreateOrderJob implements ShouldQueue
             }
 
             $shippingMethods = [];
-            $shippingLines = Arr::get($orderData,"shipping_lines");
+            $shippingLines = Arr::get($this->orderData,"shipping_lines");
             foreach ($shippingLines as $shippingLine) {
                 $title = Arr::get($shippingLine, 'title', '');
 
@@ -108,7 +106,7 @@ class CreateOrderJob implements ShouldQueue
 
             $shippingMethods = implode(", ", $shippingMethods);
 
-            $shippingAddress = Arr::get($orderData,"shipping_address");
+            $shippingAddress = Arr::get($this->orderData,"shipping_address", []);
             $shippingName = Arr::get($shippingAddress, 'name', '');
             $shippingAddress1 = Arr::get($shippingAddress, 'address1', '');
             $shippingCity = Arr::get($shippingAddress, 'city', '');
@@ -272,10 +270,6 @@ class CreateOrderJob implements ShouldQueue
 
             Log::error($e->getMessage());
         }
-    }
-
-    private function get($name){
-        return $this->$name;
     }
 
     private function checkGoogleDriveDirExisted($path, $dirName, $recursive = false) {
