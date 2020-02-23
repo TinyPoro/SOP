@@ -52,6 +52,7 @@ class Order extends Model
          'order_date',
          'total_price',
          'shipping_method',
+         'shipping_address',
          'internal_remark',
          'status',
      ];
