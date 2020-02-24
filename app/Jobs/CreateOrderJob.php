@@ -22,6 +22,8 @@ class CreateOrderJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $tries = 5;
+
     private $trelloClient;
     private $shopifyHelpers;
 
@@ -128,7 +130,7 @@ class CreateOrderJob implements ShouldQueue
                 $items,
                 $shippingAddressText);
         } catch (\Exception $e) {
-            \Log::info($e->getMessage());
+            \Log::error($e->getMessage());
 
             throw new \Exception($e->getMessage());
         }
