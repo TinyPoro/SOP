@@ -129,6 +129,8 @@ class CreateOrderJob implements ShouldQueue
                 $shippingAddressText);
         } catch (\Exception $e) {
             \Log::info($e->getMessage());
+
+            throw new \Exception($e->getMessage());
         }
     }
 
@@ -268,7 +270,8 @@ class CreateOrderJob implements ShouldQueue
         }catch (\Exception $e){
             \DB::rollback();
 
-            Log::error($e->getMessage());
+            throw new \Exception($e->getMessage());
+
         }
     }
 
