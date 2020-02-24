@@ -166,7 +166,7 @@ class CreateOrderJob implements ShouldQueue
             $dayFolderName = $order->order_date->format("F d, Y");
             $dayFolder = $this->createGoogleDriveDir($monthFolder['path']."/", $dayFolderName);
 
-            $customerFolderName = $order->customer_name;
+            $customerFolderName = $orderNumber . " - " .$order->customer_name;
             $customerFolder = $this->createGoogleDriveDir($dayFolder['path']."/", $customerFolderName);
 
             $imageDisk = "shopify";
@@ -254,7 +254,7 @@ class CreateOrderJob implements ShouldQueue
             $boardId = env("TRELLO_BOARD_ID");
 
             $customerFolderUrl = $this->getGoogleDriveUrl($customerFolder['path']);
-            $cardName = $order->customer_name;
+            $cardName = $orderNumber . " - " . $order->customer_name;
             $cardDesc = $hasValidImage ?
                 "- Tên sản phẩm: $itemTitleString\n- Loại sản phẩm: $itemVariantString\n- Link google drive: $customerFolderUrl\n- Note của khách hàng: \n" . $order->getNoteTextForTrello() :
                 "- Tên sản phẩm: $itemTitleString\n- Loại sản phẩm: $itemVariantString\n- Link google drive: $customerFolderUrl\n- Note của khách hàng: \n" . $order->getNoteTextForTrello() . "\n- NIR";
