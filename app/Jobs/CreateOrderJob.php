@@ -77,7 +77,7 @@ class CreateOrderJob implements ShouldQueue
                     $value = Arr::get($property, 'value', null);
 
                     if($name) {
-                        if(preg_match("/^Uploaded image (\d+)/", $name, $matches)) {
+                        if(preg_match("/^Uploaded\s+image\s+(\d+)/", $name, $matches)) {
                             $imageSrc = $this->shopifyHelpers->getImageSrcFromCdnUrl($value);
 
                             $number = $matches[1];
@@ -85,7 +85,7 @@ class CreateOrderJob implements ShouldQueue
                             $images[$number] = $imageSrc;
                         }
 
-                        if(preg_match("/^Note (\d+)/", $name, $matches)) {
+                        if(preg_match("/^Notes\s+(\d+)/", $name, $matches)) {
                             $number = $matches[1];
 
                             $notes[$number] = $value;
@@ -191,8 +191,8 @@ class CreateOrderJob implements ShouldQueue
                 $itemTitle = Arr::get($item, 'itemTitle', '');
                 $numberOfItem = Arr::get($item, 'numberOfItem', '');
                 $itemVariantTitle = Arr::get($item, 'itemVariantTitle', '');
-                $images = Arr::get($item, 'images', '');
-                $notes = Arr::get($item, 'notes', '');
+                $images = Arr::get($item, 'images', []);
+                $notes = Arr::get($item, 'notes', []);
 
                 $itemTitleString .= $itemTitle . ", ";
                 $itemVariantString .= $itemVariantTitle . ", ";
@@ -237,7 +237,19 @@ class CreateOrderJob implements ShouldQueue
                     }
                 }
 
-                $maxKey = max(max(array_keys($images)), max(array_keys($notes)));
+                try {
+                    $maxImageKey = max(array_keys($images));
+                } catch (\Exception $e) {
+                    $maxImageKey = 0;
+                }
+
+                try {
+                    $maxNotesKey = max(array_keys($notes));
+                } catch (\Exception $e) {
+                    $maxNotesKey = 0;
+                }
+
+                $maxKey = max($maxImageKey, $maxNotesKey);
 
                 $imagePosition += $maxKey;
                 $notePosition += $maxKey;
