@@ -77,14 +77,18 @@ class CreateOrderJob implements ShouldQueue
                     $value = Arr::get($property, 'value', null);
 
                     if($name) {
-                        if(preg_match("/^Uploaded image/", $name)) {
+                        if(preg_match("/^Uploaded image (\d+)/", $name, $matches)) {
                             $imageSrc = $this->shopifyHelpers->getImageSrcFromCdnUrl($value);
 
-                            $images[] = $imageSrc;
+                            $number = $matches[1];
+
+                            $images[$number] = $imageSrc;
                         }
 
-                        if(preg_match("/^Note/", $name)) {
-                            $notes[] = $value;
+                        if(preg_match("/^Note (\d+)/", $name, $matches)) {
+                            $number = $matches[1];
+
+                            $notes[$number] = $value;
                         }
                     }
                 }
@@ -177,8 +181,8 @@ class CreateOrderJob implements ShouldQueue
 
             //tạo item
 
-            $imagePosition = 1;
-            $notePosition = 1;
+            $imagePosition = 0;
+            $notePosition = 0;
 
             $itemTitleString = "";
             $itemVariantString = "";
@@ -194,9 +198,8 @@ class CreateOrderJob implements ShouldQueue
                 $itemVariantString .= $itemVariantTitle . ", ";
 
                 $itemNote = "";
-                foreach ($notes as $note) {
-                    $itemNote .= "+ " . $this->shopifyHelpers->getGoogleDriveNoteName($order->order_number, $notePosition) . ": " . $note . "\n";
-                    $notePosition++;
+                foreach ($notes as $k => $note) {
+                    $itemNote .= "+ " . $this->shopifyHelpers->getGoogleDriveNoteName($order->order_number, $notePosition + $k) . ": " . $note . "\n";
                 }
 
                 $item = Item::create([
@@ -213,9 +216,8 @@ class CreateOrderJob implements ShouldQueue
 
 
                 // xử lý images
-                foreach ($images as $image) {
-                    $imagePath =  $order->id."/".$item->id."/".$this->shopifyHelpers->getGoogleDriveImageName($order->order_number, $imagePosition);
-                    $imagePosition++;
+                foreach ($images as $k => $image) {
+                    $imagePath =  $order->id."/".$item->id."/".$this->shopifyHelpers->getGoogleDriveImageName($order->order_number, $imagePosition + $k);
 
                     Storage::disk($imageDisk)->put($imagePath, file_get_contents($image));
 
@@ -234,6 +236,11 @@ class CreateOrderJob implements ShouldQueue
                         $hasValidImage = true;
                     }
                 }
+
+                $maxKey = max(max(array_keys($images)), max(array_keys($notes)));
+
+                $imagePosition += $maxKey;
+                $notePosition += $maxKey;
             }
 
 //            if(!$hasValidImage) {
