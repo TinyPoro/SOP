@@ -19,7 +19,7 @@ class CreateItemsTable extends Migration
             $table->string('number_of_item');
             $table->string('item_variant_title')->index();
             $table->string('item_name')->index();
-            $table->string('notes');
+            $table->text('notes');
             $table->unsignedBigInteger('order_id');
             $table->timestamps();
         });

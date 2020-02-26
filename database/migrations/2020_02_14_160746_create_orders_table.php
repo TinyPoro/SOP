@@ -24,6 +24,7 @@ class CreateOrdersTable extends Migration
             $table->string('total_price');
             $table->string('shipping_method')->index();
             $table->text('internal_remark')->nullable();
+            $table->text('shipping_address');
             $table->integer('status')->default(\App\Models\Order::DESIGNING_STATUS)->index();
             $table->timestamps();
         });
