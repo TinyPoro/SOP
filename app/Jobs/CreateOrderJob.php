@@ -187,7 +187,7 @@ class CreateOrderJob implements ShouldQueue
             $itemTitleString = "";
             $itemVariantString = "";
 
-            foreach ($items as $item) {
+            foreach ($items as $k => $item) {
                 $itemTitle = Arr::get($item, 'itemTitle', '');
                 $numberOfItem = Arr::get($item, 'numberOfItem', '');
                 $itemVariantTitle = Arr::get($item, 'itemVariantTitle', '');
@@ -211,7 +211,7 @@ class CreateOrderJob implements ShouldQueue
                     'order_id' => $order->id,
                 ]);
 
-                $productFolderName = $item->item_name;
+                $productFolderName = ($k + 1) . " - $item->item_name";
                 $productFolder = $this->createGoogleDriveDir($customerFolder['path']."/", $productFolderName);
 
 
