@@ -48,6 +48,16 @@ class OrderCrudController extends CrudController
             });
 
         $this->crud->addFilter([
+            'type' => 'date',
+            'name' => 'order_date',
+            'label'=> 'Ngày'
+        ],
+            false,
+            function($value) {
+                $this->crud->addClause('where', 'order_date', '=', $value);
+            });
+
+        $this->crud->addFilter([
             'type' => 'text',
             'name' => 'customer_name',
             'label'=> 'Tên khách hàng'
