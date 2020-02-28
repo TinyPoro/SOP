@@ -187,7 +187,7 @@ class CreateOrderJob implements ShouldQueue
             $itemTitleString = "";
             $itemVariantString = "";
 
-            foreach ($items as $k => $item) {
+            foreach ($items as $itemKey => $item) {
                 $itemTitle = Arr::get($item, 'itemTitle', '');
                 $numberOfItem = Arr::get($item, 'numberOfItem', '');
                 $itemVariantTitle = Arr::get($item, 'itemVariantTitle', '');
@@ -198,8 +198,8 @@ class CreateOrderJob implements ShouldQueue
                 $itemVariantString .= $itemVariantTitle . ", ";
 
                 $itemNote = "";
-                foreach ($notes as $k => $note) {
-                    $itemNote .= "+ " . $this->shopifyHelpers->getGoogleDriveNoteName($order->order_number, $notePosition + $k) . ": " . $note . "\n";
+                foreach ($notes as $noteKey => $note) {
+                    $itemNote .= "+ " . $this->shopifyHelpers->getGoogleDriveNoteName($order->order_number, $notePosition + $noteKey) . ": " . $note . "\n";
                 }
 
                 $item = Item::create([
@@ -211,13 +211,13 @@ class CreateOrderJob implements ShouldQueue
                     'order_id' => $order->id,
                 ]);
 
-                $productFolderName = ($k + 1) . " - $item->item_name";
+                $productFolderName = ($itemKey + 1) . " - $item->item_name";
                 $productFolder = $this->createGoogleDriveDir($customerFolder['path']."/", $productFolderName);
 
 
                 // xử lý images
-                foreach ($images as $k => $image) {
-                    $imagePath =  $order->id."/".$item->id."/".$this->shopifyHelpers->getGoogleDriveImageName($order->order_number, $imagePosition + $k);
+                foreach ($images as $imageKey => $image) {
+                    $imagePath =  $order->id."/".$item->id."/".$this->shopifyHelpers->getGoogleDriveImageName($order->order_number, $imagePosition + $imageKey);
 
                     Storage::disk($imageDisk)->put($imagePath, file_get_contents($image));
 
