@@ -213,6 +213,7 @@ class CreateOrderJob implements ShouldQueue
 
                 $productFolderName = ($itemKey + 1) . " - $item->item_name";
                 $productFolder = $this->createGoogleDriveDir($customerFolder['path']."/", $productFolderName);
+                $this->changeGoogleDriveFolderToEditToAnyone($productFolder, 'writer', 'anyone', false);
 
 
                 // xử lý images
@@ -345,6 +346,17 @@ class CreateOrderJob implements ShouldQueue
     private function getGoogleDriveUrl($path) {
         return Storage::cloud()->url($path);
     }
+
+    private function changeGoogleDriveFolderToEditToAnyone($folder, $role, $type, $allowDiscovery = false){
+        $service = Storage::cloud()->getAdapter()->getService();
+        $permission = new \Google_Service_Drive_Permission();
+        $permission->setRole($role);
+        $permission->setType($type);
+        $permission->setAllowFileDiscovery($allowDiscovery);
+
+        $service->permissions->create($folder['basename'], $permission);
+    }
+
 
     private function checkTrelloBoardListExist($boardId, $listName) {
         $lists = collect($this->trelloClient->api('boards')->lists()->all($boardId));
