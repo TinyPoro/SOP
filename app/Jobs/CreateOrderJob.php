@@ -175,6 +175,8 @@ class CreateOrderJob implements ShouldQueue
             $customerFolderName = $orderNumber . " - " .$order->customer_name;
             $customerFolder = $this->createGoogleDriveDir($dayFolder['path']."/", $customerFolderName);
 
+            $this->changeGoogleDriveFolderToEditToAnyone($customerFolder, 'writer', 'anyone', false);
+
             $imageDisk = "shopify";
 
             $hasValidImage = false;
@@ -213,8 +215,6 @@ class CreateOrderJob implements ShouldQueue
 
                 $productFolderName = ($itemKey + 1) . " - $item->item_name";
                 $productFolder = $this->createGoogleDriveDir($customerFolder['path']."/", $productFolderName);
-                $this->changeGoogleDriveFolderToEditToAnyone($productFolder, 'writer', 'anyone', false);
-
 
                 // xử lý images
                 foreach ($images as $imageKey => $image) {
@@ -231,7 +231,8 @@ class CreateOrderJob implements ShouldQueue
                     $filePath = Storage::disk($imageDisk)->path($imagePath);
                     $fileName = basename($filePath);
 
-                    $this->uploadGoogleDriveFile($productFolder['path']."/", $fileName, $filePath);
+                    $uploadedFile = $this->uploadGoogleDriveFile($productFolder['path']."/", $fileName, $filePath);
+                    $this->changeGoogleDriveFolderToEditToAnyone($uploadedFile, 'reader', 'anyone', false);
 
                     if($this->shopifyHelpers->checkValidShopifyImage($filePath)) {
                         $hasValidImage = true;
@@ -341,6 +342,8 @@ class CreateOrderJob implements ShouldQueue
         }
 
         Storage::cloud()->put($path.$fileName, file_get_contents($filePath));
+
+        return $this->checkGoogleDriveFileExisted($path, $fileName);
     }
 
     private function getGoogleDriveUrl($path) {
