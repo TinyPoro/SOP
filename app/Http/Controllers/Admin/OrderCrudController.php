@@ -193,8 +193,8 @@ class OrderCrudController extends CrudController
 
         $this->crud->addColumn([
             'name' => "status",
-            "type" => "model_function_custom",
-            "function_name" => "getStatusText",
+            "type" => "select_from_array_custom",
+            "options" => Order::ORDER_STATUS_ARRAY,
         ]);
 
         $this->crud->addColumn([
