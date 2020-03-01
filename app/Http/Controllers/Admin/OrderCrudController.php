@@ -113,6 +113,8 @@ class OrderCrudController extends CrudController
             $this->crud->removeButtons(['create', 'show', 'update', 'delete']);
 
             $this->crud->addButton("line", "custom_dropdown", "view", 'crud::buttons.custom_dropdown');
+
+            $this->crud->setActionsColumnPriority(10000);
         });
     }
 

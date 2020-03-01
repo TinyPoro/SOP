@@ -6,6 +6,6 @@
 
 <span>
 @php
-	echo $value;
+	echo str_limit(strip_tags($value), 80, "[...]");
 @endphp
 </span>
