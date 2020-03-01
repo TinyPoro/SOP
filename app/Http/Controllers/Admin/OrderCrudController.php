@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\OrdersExport;
 use App\Http\Requests\OrderRequest;
 use App\Models\Order;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
-use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 /**
  * Class OrderCrudController
@@ -114,6 +115,8 @@ class OrderCrudController extends CrudController
             $this->crud->removeButtons(['create', 'show', 'update', 'delete']);
 
             $this->crud->addButton("line", "custom_dropdown", "view", 'crud::buttons.custom_dropdown');
+
+            $this->crud->addButtonFromView('top', 'export', 'export', 'beginning');
 
             $this->crud->setActionsColumnPriority(10000);
         });
@@ -242,5 +245,49 @@ class OrderCrudController extends CrudController
         Order::where("id", $id)->update([
             'status' => $status
         ]);
+    }
+
+    public function export(Request $request)
+    {
+        // if a search term was present
+        if ($this->request->input('search') && $this->request->input('search')['value']) {
+            // filter the results accordingly
+            $this->crud->applySearchTerm($this->request->input('search')['value']);
+        }
+
+        $entries = $this->crud->getEntries();
+
+        $datas = [];
+        $datas[] = [
+            "Order number",
+            "Date",
+            "Customer name",
+            "Link to order",
+            "Link to gd",
+            "# of item",
+            "Item name",
+            "Status",
+            "Note",
+            "Internal Remark",
+        ];
+
+        foreach ($entries as $entry) {
+            /** @var  Order $entry */
+
+            $datas[] = [
+                $entry->order_number,
+                $entry->getDateString(),
+                $entry->customer_name,
+                "https://noble-pawtrait.myshopify.com/admin/orders/$entry->order_id",
+                $entry->link_to_gd,
+                $entry->getNumberOfItem(),
+                $entry->getItemName(),
+                $entry->getStatusText(),
+                $entry->getNoteText(),
+                $entry->internal_remark,
+            ];
+        }
+
+        return Excel::download(new OrdersExport($datas), 'orders.xlsx');
     }
 }

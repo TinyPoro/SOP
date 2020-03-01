@@ -15,5 +15,6 @@ Route::group([
     Route::crud('shopifyimage', 'ShopifyImageCrudController');
     Route::crud('item', 'ItemCrudController');
 
+    Route::get('/order/export', 'OrderCrudController@export');
     Route::put('/order/status/{id}', 'OrderCrudController@updateStatus')->name('order.update_status');
 }); // this should be the absolute last line of this file
