@@ -88,11 +88,11 @@ class ShopifyHelpers
     }
 
     public function checkValidShopifyImage($filePath) {
-        if(filesize($filePath) <= 680000) return false;
+        if(filesize($filePath) <= 500000) return false;
 
         if($this->getImagePixels($filePath) <= 900 * 900) return false;
 
-        if($this->getDpiImageMagick($filePath) < 71) return false;
+        if($this->getDpiImageMagick($filePath) < 70) return false;
 
         return true;
     }
