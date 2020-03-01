@@ -6,6 +6,7 @@ use App\Http\Requests\OrderRequest;
 use App\Models\Order;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -232,5 +233,14 @@ class OrderCrudController extends CrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $status = $request->get('status');
+
+        Order::where("id", $id)->update([
+            'status' => $status
+        ]);
     }
 }
