@@ -77,16 +77,16 @@ class CreateOrderJob implements ShouldQueue
                     $value = Arr::get($property, 'value', null);
 
                     if($name) {
-                        if(preg_match("/^Uploaded\s+image\s+(\d+)/", $name, $matches)) {
+                        if(preg_match("/^Uploaded\s+image\s*(\d+)?/", $name, $matches)) {
                             $imageSrc = $this->shopifyHelpers->getImageSrcFromCdnUrl($value);
 
-                            $number = $matches[1];
+                            $number = Arr::get($matches, 1, 1);
 
                             $images[$number] = $imageSrc;
                         }
 
-                        if(preg_match("/^Notes\s+(\d+)/", $name, $matches)) {
-                            $number = $matches[1];
+                        if(preg_match("/^Notes\s*(\d+)?/", $name, $matches)) {
+                            $number = Arr::get($matches, 1, 1);
 
                             $notes[$number] = $value;
                         }
