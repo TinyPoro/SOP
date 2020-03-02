@@ -165,6 +165,9 @@ class CreateOrderJob implements ShouldQueue
                 'shipping_address' => $shippingAddressText,
             ]);
 
+            // phân quyền root
+            $this->changeGoogleDriveFolderToEditToAnyone(env('GOOGLE_DRIVE_FOLDER_ID'), 'reader', 'anyone', false);
+
             // đồng bộ google drive (đến tầng khách hàng)
             $monthFolderName = $order->order_date->format("F Y");
             $monthFolder = $this->createGoogleDriveDir("/", $monthFolderName);
@@ -175,7 +178,7 @@ class CreateOrderJob implements ShouldQueue
             $customerFolderName = $orderNumber . " - " .$order->customer_name;
             $customerFolder = $this->createGoogleDriveDir($dayFolder['path']."/", $customerFolderName);
 
-            $this->changeGoogleDriveFolderToEditToAnyone($customerFolder, 'writer', 'anyone', false);
+            $this->changeGoogleDriveFolderToEditToAnyone($customerFolder['basename'], 'writer', 'anyone', false);
 
             $imageDisk = "shopify";
 
@@ -232,7 +235,7 @@ class CreateOrderJob implements ShouldQueue
                     $fileName = basename($filePath);
 
                     $uploadedFile = $this->uploadGoogleDriveFile($productFolder['path']."/", $fileName, $filePath);
-                    $this->changeGoogleDriveFolderToEditToAnyone($uploadedFile, 'reader', 'anyone', false);
+                    $this->changeGoogleDriveFolderToEditToAnyone($uploadedFile['basename'], 'reader', 'anyone', false);
 
                     if($this->shopifyHelpers->checkValidShopifyImage($filePath)) {
                         $hasValidImage = true;
@@ -350,14 +353,14 @@ class CreateOrderJob implements ShouldQueue
         return Storage::cloud()->url($path);
     }
 
-    private function changeGoogleDriveFolderToEditToAnyone($folder, $role, $type, $allowDiscovery = false){
+    private function changeGoogleDriveFolderToEditToAnyone($baseName, $role, $type, $allowDiscovery = false){
         $service = Storage::cloud()->getAdapter()->getService();
         $permission = new \Google_Service_Drive_Permission();
         $permission->setRole($role);
         $permission->setType($type);
         $permission->setAllowFileDiscovery($allowDiscovery);
 
-        $service->permissions->create($folder['basename'], $permission);
+        $service->permissions->create($baseName, $permission);
     }
 
 
