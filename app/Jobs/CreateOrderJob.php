@@ -136,7 +136,7 @@ class CreateOrderJob implements ShouldQueue
         } catch (\Exception $e) {
             \Log::error($e->getMessage());
 
-            throw new \Exception($e->getMessage());
+            throw $e;
         }
     }
 
@@ -296,7 +296,7 @@ class CreateOrderJob implements ShouldQueue
         }catch (\Exception $e){
             \DB::rollback();
 
-            throw new \Exception($e->getMessage());
+            throw $e;
 
         }
     }
