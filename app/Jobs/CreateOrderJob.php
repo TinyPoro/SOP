@@ -23,6 +23,7 @@ class CreateOrderJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 5;
+    public $timeout = 3000;
 
     private $trelloClient;
     private $shopifyHelpers;
