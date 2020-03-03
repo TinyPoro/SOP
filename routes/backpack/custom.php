@@ -17,4 +17,6 @@ Route::group([
 
     Route::get('/order/export', 'OrderCrudController@export');
     Route::put('/order/status/{id}', 'OrderCrudController@updateStatus')->name('order.update_status');
+    Route::crud('job', 'JobCrudController');
+    Route::crud('failjob', 'FailJobCrudController');
 }); // this should be the absolute last line of this file

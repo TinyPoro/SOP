@@ -5,6 +5,13 @@
 <li class='nav-item'><a class='nav-link' href='{{ backpack_url('order') }}'><i class='nav-icon fa fa-question'></i> Orders</a></li>
 {{--<li class='nav-item'><a class='nav-link' href='{{ backpack_url('item') }}'><i class='nav-icon fa fa-question'></i> Items</a></li>--}}
 {{--<li class='nav-item'><a class='nav-link' href='{{ backpack_url('shopifyimage') }}'><i class='nav-icon fa fa-question'></i> ShopifyImages</a></li>--}}
+
+@role('Admin')
+<li class='nav-item'><a class='nav-link' href='{{ backpack_url('job') }}'><i class='nav-icon fa fa-question'></i> Jobs</a></li>
+<li class='nav-item'><a class='nav-link' href='{{ backpack_url('failjob') }}'><i class='nav-icon fa fa-question'></i> FailJobs</a></li>
+@endrole
+
+
 @endhasanyrole
 
 @role('Admin')
@@ -17,7 +24,6 @@
         <li class="nav-item"><a class="nav-link" href="{{ backpack_url('permission') }}"><i class="nav-icon fa fa-key"></i> <span>Permissions</span></a></li>
     </ul>
 </li>
-@endrole
-
 
 <li class='nav-item'><a class='nav-link' href='{{ backpack_url('log') }}'><i class='nav-icon fa fa-terminal'></i> Logs</a></li>
+@endrole
