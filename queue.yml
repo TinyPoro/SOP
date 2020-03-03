@@ -5,7 +5,7 @@ apps:
     interpreter : /usr/bin/php
     cwd : ./
     exec_mode: fork
-    args : queue:work
+    args : queue:work --timeout=0
     autorestart : true
     restart_delay: 60000
     log_date_format : YYYYMMDDHHmm
