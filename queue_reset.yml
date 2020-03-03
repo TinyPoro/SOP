@@ -1,0 +1,11 @@
+apps:
+## DECOMPRESS
+  - script : ./artisan
+    name     : 'queue_retry'
+    interpreter : /usr/bin/php
+    cwd : ./
+    exec_mode: fork
+    args : queue:retry all
+    autorestart : true
+    restart_delay: 3600000
+    log_date_format : YYYYMMDDHHmm
