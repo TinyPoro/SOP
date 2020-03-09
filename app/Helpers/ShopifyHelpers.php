@@ -20,7 +20,7 @@ class ShopifyHelpers
         $page = $puPHPeteerCrawler->createNewPage();
         $page->goto($url, ['waitUntil' => 'load']);
 
-        $imageSrc = $puPHPeteerCrawler->getElementAttribute($page, "#previewImage", "src");
+        $imageSrc = $puPHPeteerCrawler->getElementAttribute($page, ".buttons a:nth-child(2)", "href");
 
         return $imageSrc;
     }
