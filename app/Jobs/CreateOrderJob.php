@@ -315,12 +315,15 @@ class CreateOrderJob implements ShouldQueue
         $output = json_decode($output);
 
         if(curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 200) {
+            curl_close($ch);
+
             return $output;
         } else {
+            curl_close($ch);
+
             throw new \Exception("HTTP_CODE_ERROR");
         }
 
-        curl_close($ch);
     }
 
     private function checkGoogleDriveDirExisted($path, $dirName, $recursive = false) {
