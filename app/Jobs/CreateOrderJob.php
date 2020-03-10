@@ -224,7 +224,7 @@ class CreateOrderJob implements ShouldQueue
                 foreach ($images as $imageKey => $image) {
                     $imagePath =  $order->id."/".$item->id."/".$this->shopifyHelpers->getGoogleDriveImageName($order->order_number, $imagePosition + $imageKey);
 
-                    Storage::disk($imageDisk)->put($imagePath, file_get_contents($image));
+                    Storage::disk($imageDisk)->put($imagePath, $this->getImageContent($image));
 
                     ShopifyImage::create([
                         'disk' => $imageDisk,
@@ -296,10 +296,31 @@ class CreateOrderJob implements ShouldQueue
             \DB::commit();
         }catch (\Exception $e){
             \DB::rollback();
-
+            dump($e->getMessage());
             throw $e;
 
         }
+    }
+
+    private function getImageContent($link) {
+        if(!$link) {
+            throw new \Exception("no link!");
+        }
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $link);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $output = curl_exec($ch);
+
+        $output = json_decode($output);
+
+        if(curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 200) {
+            return $output;
+        } else {
+            throw new \Exception("HTTP_CODE_ERROR");
+        }
+
+        curl_close($ch);
     }
 
     private function checkGoogleDriveDirExisted($path, $dirName, $recursive = false) {
