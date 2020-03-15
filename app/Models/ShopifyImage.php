@@ -22,6 +22,7 @@ class ShopifyImage extends Model
      protected $fillable = [
          'disk',
          'path',
+         'url',
          'item_id',
      ];
     // protected $hidden = [];

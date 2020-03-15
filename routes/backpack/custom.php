@@ -12,8 +12,8 @@ Route::group([
     'namespace'  => 'App\Http\Controllers\Admin',
 ], function () { // custom admin routes
     Route::crud('order', 'OrderCrudController');
-    Route::crud('shopifyimage', 'ShopifyImageCrudController');
-    Route::crud('item', 'ItemCrudController');
+//    Route::crud('shopifyimage', 'ShopifyImageCrudController');
+//    Route::crud('item', 'ItemCrudController');
 
     Route::get('/order/export', 'OrderCrudController@export');
     Route::put('/order/status/{id}', 'OrderCrudController@updateStatus')->name('order.update_status');

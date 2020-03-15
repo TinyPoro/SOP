@@ -193,6 +193,8 @@ class CreateOrderJob implements ShouldQueue
             $itemTitleString = "";
             $itemVariantString = "";
 
+            $trelloImageDes = "";
+
             foreach ($items as $itemKey => $item) {
                 $itemTitle = Arr::get($item, 'itemTitle', '');
                 $numberOfItem = Arr::get($item, 'numberOfItem', '');
@@ -222,13 +224,18 @@ class CreateOrderJob implements ShouldQueue
 
                 // xử lý images
                 foreach ($images as $imageKey => $image) {
-                    $imagePath =  $order->id."/".$item->id."/".$this->shopifyHelpers->getGoogleDriveImageName($order->order_number, $imagePosition + $imageKey);
+                    $imageNumber = $imagePosition + $imageKey;
+
+                    $trelloImageDes .= "[$imageNumber]($image) ";
+
+                    $imagePath =  $order->id."/".$item->id."/".$this->shopifyHelpers->getGoogleDriveImageName($order->order_number, $imageNumber);
 
                     Storage::disk($imageDisk)->put($imagePath, $this->getImageContent($image));
 
                     ShopifyImage::create([
                         'disk' => $imageDisk,
                         'path' => $imagePath,
+                        'url' => $image,
                         'item_id' => $item->id
                     ]);
 
@@ -283,8 +290,8 @@ class CreateOrderJob implements ShouldQueue
             $customerFolderUrl = $this->getGoogleDriveUrl($customerFolder['path']);
             $cardName = $orderNumber . " - " . $order->customer_name;
             $cardDesc = $hasValidImage ?
-                "- Tên sản phẩm: $itemTitleString\n- Loại sản phẩm: $itemVariantString\n- Link google drive: $customerFolderUrl\n- Note của khách hàng: \n" . $order->getNoteTextForTrello() :
-                "- Tên sản phẩm: $itemTitleString\n- Loại sản phẩm: $itemVariantString\n- Link google drive: $customerFolderUrl\n- Note của khách hàng: \n" . $order->getNoteTextForTrello() . "\n- NIR";
+                "- Tên sản phẩm: $itemTitleString\n- Loại sản phẩm: $itemVariantString\n- Link google drive: $customerFolderUrl\n- Photos: $trelloImageDes \n- Note của khách hàng: \n" . $order->getNoteTextForTrello() :
+                "- Tên sản phẩm: $itemTitleString\n- Loại sản phẩm: $itemVariantString\n- Link google drive: $customerFolderUrl\n- Photos: $trelloImageDes \n- Note của khách hàng: \n" . $order->getNoteTextForTrello() . "\n- NIR";
 
             $listName = $dayFolderName;
             $list = $this->createTrelloBoardList($boardId, $listName);
