@@ -79,11 +79,9 @@ class CreateOrderJob implements ShouldQueue
 
                     if($name) {
                         if(preg_match("/^Uploaded\s+image\s*(\d+)?/", $name, $matches)) {
-                            $imageSrc = $this->shopifyHelpers->getImageSrcFromCdnUrl($value);
-
                             $number = Arr::get($matches, 1, 1);
 
-                            $images[$number] = $imageSrc;
+                            $images[$number] = $value;
                         }
 
                         if(preg_match("/^Notes\s*(\d+)?/", $name, $matches)) {
@@ -230,7 +228,8 @@ class CreateOrderJob implements ShouldQueue
 
                     $imagePath =  $order->id."/".$item->id."/".$this->shopifyHelpers->getGoogleDriveImageName($order->order_number, $imageNumber);
 
-                    Storage::disk($imageDisk)->put($imagePath, $this->getImageContent($image));
+                    $imageSrc = $this->shopifyHelpers->getImageSrcFromCdnUrl($image);
+                    Storage::disk($imageDisk)->put($imagePath, $this->getImageContent($imageSrc));
 
                     ShopifyImage::create([
                         'disk' => $imageDisk,
